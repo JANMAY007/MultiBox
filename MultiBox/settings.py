@@ -43,8 +43,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Corrugation.apps.CorrugationConfig',
+    'allauth_ui',
     'allauth',
     'allauth.account',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
