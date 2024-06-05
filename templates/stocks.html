@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}
+    Stock
+{% endblock %}
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+            </div>
+        {% endfor %}
+        <script>
+            setTimeout(function() {
+                bootstrap.Alert.getOrCreateInstance(document.querySelector(".alert")).close();
+            }, 2500)
+        </script>
+    {% endif %}
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStockModal">
+                    Add Stock
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        {% for stock in stocks %}
+            <div class="col-md-6 col-xl-3 mb-4">
+                <div class="card shadow border-start-warning py-2">
+                    <div class="card-body">
+                        <div class="text-uppercase text-primary fw-bold text-sm mb-1">
+                            <span>{{ stock.product__product_name }}</span>
+                        </div>
+                        <div class="text-dark fw-bold h5 mb-0">
+                            <span>{{ stock.stock_quantity }}</span>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal"
+                                data-bs-target="#editModal{{ forloop.counter }}">
+                            Edit Quantity
+                        </button>
+                        <form method="POST" action="{% url 'Corrugation:delete_stock' stock.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm mt-2 ms-2">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="editModal{{ forloop.counter }}" tabindex="-1"
+                 aria-labelledby="editModalLabel{{ forloop.counter }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editModalLabel{{ forloop.counter }}">Edit Quantity
+                                for {{ stock.product__product_name }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{% url 'Corrugation:index' %}">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <input type="hidden" name="product_name" value="{{ stock.product__product_name }}">
+                                    <label for="stockQuantity{{ forloop.counter }}" class="form-label">Stock
+                                        Quantity</label>
+                                    <input type="number" class="form-control" id="stockQuantity{{ forloop.counter }}"
+                                           name="stock_quantity" value="{{ stock.stock_quantity }}" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-warning">Save changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <!-- Modal for adding new stock -->
+        <div class="modal fade" id="addStockModal" tabindex="-1" aria-labelledby="addStockModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addStockModalLabel">Add New Stock</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST" action="{% url 'Corrugation:index' %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="newProductName" class="form-label">Product Name</label>
+                                <select class="form-select" id="newProductName" name="product_name">
+                                    <option value="" selected disabled>Select a product</option>
+                                    {% for product in products %}
+                                        <option value="{{ product.product_name }}">{{ product.product_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="newStockQuantity" class="form-label">Stock Quantity</label>
+                                <input type="number" class="form-control" id="newStockQuantity" name="stock_quantity"
+                                       required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add Stock</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
