@@ -26,7 +26,7 @@ def register_tenant(request):
             tenant_logo=tenant_logo
         )
         # Send email
-        subject = 'Tenant Registration Completed'
+        subject = 'Tenant Registration MultiBox'
         html_message = render_to_string('tenant_registration_email.html', {'user': user})
         plain_message = strip_tags(html_message)
         from_email = settings.DEFAULT_FROM_EMAIL
