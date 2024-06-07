@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Register Tenant
+{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+            </div>
+        {% endfor %}
+        <script>
+            setTimeout(function() {
+                bootstrap.Alert.getOrCreateInstance(document.querySelector(".alert")).close();
+            }, 2500)
+        </script>
+    {% endif %}
+    <div class="bg-gradient-primary">
+        <div class="container">
+            <div class="card shadow-lg o-hidden border-0 my-5">
+                <div class="card-body p-0">
+                    <div class="row">
+                        <div class="col-lg-5 d-none d-lg-flex">
+                            <div class="d-flex bg-login-image justify-content-center">
+                                <img src="{% static 'logo/logo.png' %}" alt="logo" style="max-width: 80%">
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="p-5">
+                                <div class="text-center">
+                                    <h4 class="text-dark mb-4">Register Tenant</h4>
+                                </div>
+                                <form class="user" method="post" action="{% url 'Corrugation:register_tenant' %}" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="tenantName">Tenant Name</label>
+                                        <input class="form-control form-control-user" type="text"
+                                               id="tenantName" placeholder="Tenant Name" name="tenant_name" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="tenantLogo">Tenant Logo</label>
+                                        <input class="form-control form-control-user" type="file"
+                                               id="tenantLogo" name="tenant_logo" required>
+                                    </div>
+                                    <button class="btn btn-primary d-block btn-user w-100" type="submit">Register Tenant</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -7,6 +7,25 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 
+@login_required
+def register_tenant(request):
+    if request.method == 'POST':
+        tenant_name = request.POST.get('tenant_name')
+        tenant_logo = request.FILES.get('tenant_logo')
+        user = request.user
+        if Tenant.objects.filter(owner=user).exists():
+            messages.info(request, 'You already have a tenant registered.')
+            return redirect('Corrugation:register_tenant')
+        Tenant.objects.create(
+            owner=user,
+            name=tenant_name,
+            tenant_logo=tenant_logo
+        )
+        messages.success(request, 'Tenant registered successfully.')
+        return redirect('Corrugation:register_tenant')
+    return render(request, 'register_tenant.html')
+
+
 def get_tenant_for_user(user):
     try:
         return Tenant.objects.get(owner=user)
@@ -57,7 +76,7 @@ def paper_reels(request):
     tenant = get_tenant_for_user(request.user)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('accounts:login')
+        return redirect('Corrugation:register_tenant')
     if request.method == 'POST':
         reel_number = request.POST.get('reel_number')
         bf = request.POST.get('bf')
@@ -145,7 +164,7 @@ def add_product(request):
     tenant = get_tenant_for_user(request.user)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('accounts:login')
+        return redirect('Corrugation:register_tenant')
     if request.method == 'POST':
         product_name = request.POST.get('product_name')
         box_no = request.POST.get('box_no')
@@ -221,7 +240,7 @@ def product_archive(request):
     tenant = get_tenant_for_user(request.user)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('accounts:login')
+        return redirect('Corrugation:register_tenant')
     products = Product.objects.filter(archive=True, tenant=tenant).values('product_name', 'pk')
     context = {
         'products': products,

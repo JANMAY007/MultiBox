@@ -2,9 +2,12 @@ from django.urls import path
 from .views import (search_reels, paper_reels, update_reel, delete_reel,
                     restore_reel, add_product, product_archive, update_products,
                     delete_products, restore_products, products_detail,
-                    product_detail_archive)
+                    product_detail_archive, register_tenant)
+
+app_name = 'Corrugation'
 
 urlpatterns = [
+    path('register_tenant/', register_tenant, name='register_tenant'),
     path('paper_reels/', paper_reels, name='paper_reels'),
     path('search_reels/', search_reels, name='search_reels'),
     path('update_reel/<int:pk>/', update_reel, name='update_reel'),
