@@ -1,15 +1,31 @@
 from django.http import JsonResponse
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import PaperReels
+from .models import Tenant, TenantEmployees, PaperReels
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 
+def get_tenant_for_user(user):
+    try:
+        return Tenant.objects.get(owner=user)
+    except Tenant.DoesNotExist:
+        try:
+            tenant_employee = TenantEmployees.objects.get(user=user)
+            return tenant_employee.tenant
+        except TenantEmployees.DoesNotExist:
+            return None
+
+
 @login_required
 def search_reels(request):
     query = request.GET.get('q', '')
+    tenant = get_tenant_for_user(request.user)
+
+    if tenant is None:
+        return JsonResponse({'results': []})
+
     if query:
         results = PaperReels.objects.filter(
             Q(reel_number__icontains=query) |
@@ -18,7 +34,7 @@ def search_reels(request):
             Q(size__icontains=query) |
             Q(weight__icontains=query),
             used=False,
-            tenant__owner__username=request.user.username,
+            tenant=tenant,
         )
         results_data = [
             {
@@ -32,35 +48,44 @@ def search_reels(request):
         ]
     else:
         results_data = []
+
     return JsonResponse({'results': results_data})
 
 
 @login_required
 def paper_reels(request):
+    tenant = get_tenant_for_user(request.user)
+    if tenant is None:
+        messages.error(request, 'You are not associated with any tenant.')
+        return render(request, 'paper_reel.html')
     if request.method == 'POST':
         reel_number = request.POST.get('reel_number')
         bf = request.POST.get('bf')
         gsm = request.POST.get('gsm')
         size = request.POST.get('size')
         weight = request.POST.get('weight')
+
         try:
             bf = int(bf)
             gsm = int(gsm)
             size = float(size)
             weight = int(weight)
+
             PaperReels.objects.create(
                 reel_number=reel_number,
                 bf=bf,
                 gsm=gsm,
                 size=size,
-                weight=weight
+                weight=weight,
+                tenant=tenant,
             )
             messages.success(request, 'Paper reel added successfully.')
             return redirect('Corrugation:paper_reels')
         except (ValueError, TypeError):
             messages.error(request, 'Invalid input. Please enter valid values.')
             return render(request, 'paper_reel.html')
-    reels_list = PaperReels.objects.all()
+
+    reels_list = PaperReels.objects.filter(tenant=tenant)
     paginator = Paginator(reels_list, 20)  # Show 20 reels per page
     page = request.GET.get('page')
     try:
@@ -69,18 +94,19 @@ def paper_reels(request):
         reels = paginator.page(1)
     except EmptyPage:
         reels = paginator.page(paginator.num_pages)
+
     context = {
         'reels': reels,
-        'used_reels': PaperReels.objects.filter(used=True).count(),
-        'unused_reels': PaperReels.objects.filter(used=False).count(),
+        'used_reels': PaperReels.objects.filter(used=True, tenant=tenant).count(),
+        'unused_reels': PaperReels.objects.filter(used=False, tenant=tenant).count(),
     }
     return render(request, 'paper_reel.html', context)
 
 
 @login_required
 def update_reel(request, pk):
-    reel = get_object_or_404(PaperReels, pk=pk)
     if request.method == 'POST':
+        reel = get_object_or_404(PaperReels, pk=pk)
         reel.reel_number = request.POST.get('reel_number')
         reel.bf = request.POST.get('bf')
         reel.gsm = request.POST.get('gsm')
@@ -94,8 +120,8 @@ def update_reel(request, pk):
 
 @login_required
 def delete_reel(request, pk):
-    reel = get_object_or_404(PaperReels, pk=pk)
     if request.method == 'POST':
+        reel = get_object_or_404(PaperReels, pk=pk)
         reel.used = True
         reel.save()
         messages.error(request, 'Paper reel deleted successfully.')
@@ -105,8 +131,8 @@ def delete_reel(request, pk):
 
 @login_required
 def restore_reel(request, pk):
-    reel = get_object_or_404(PaperReels, pk=pk)
     if request.method == 'POST':
+        reel = get_object_or_404(PaperReels, pk=pk)
         reel.used = False
         reel.save()
         messages.success(request, 'Paper reel restored successfully.')
