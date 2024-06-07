@@ -1,5 +1,8 @@
 from django.contrib import admin
-from .models import Tenant, TenantEmployees, PaperReels
+from .models import Tenant, TenantEmployees, PaperReels, Product, Partition
+
+
+admin.site.register(PaperReels)
 
 
 class TenantEmployeesInline(admin.TabularInline):
@@ -12,4 +15,15 @@ class TenantAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Tenant, TenantAdmin)
-admin.site.register(PaperReels)
+
+
+class PartitionInline(admin.TabularInline):
+    model = Partition
+    extra = 1
+
+
+class ProductAdmin(admin.ModelAdmin):
+    inlines = [PartitionInline]
+
+
+admin.site.register(Product, ProductAdmin)
