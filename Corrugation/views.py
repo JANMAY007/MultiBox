@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import JsonResponse
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
@@ -5,6 +6,9 @@ from .models import Tenant, TenantEmployees, PaperReels, Product, Partition
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 
 @login_required
@@ -21,7 +25,16 @@ def register_tenant(request):
             name=tenant_name,
             tenant_logo=tenant_logo
         )
+        # Send email
+        subject = 'Tenant Registration Completed'
+        html_message = render_to_string('tenant_registration_email.html', {'user': user})
+        plain_message = strip_tags(html_message)
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to = user.email
+        send_mail(subject, plain_message, from_email, [to], html_message=html_message)
+
         messages.success(request, 'Tenant registered successfully.')
+        messages.info(request, 'An email has been sent to you for the registration details.')
         return redirect('Corrugation:register_tenant')
     return render(request, 'register_tenant.html')
 
