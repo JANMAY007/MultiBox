@@ -130,6 +130,8 @@ class PurchaseOrder(models.Model):
     rate = models.FloatField()
     po_quantity = models.PositiveIntegerField()
     active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
 
     def save(self, *args, **kwargs):
@@ -170,6 +172,8 @@ class Dispatch(models.Model):
     po = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
     dispatch_date = models.DateField()
     dispatch_quantity = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
 
     def __str__(self):
@@ -185,6 +189,8 @@ class Program(models.Model):
     program_date = models.DateField()
     program_notes = models.TextField()
     active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
 
     def __str__(self):
@@ -199,6 +205,8 @@ class Production(models.Model):
     production_date = models.DateField()
     production_quantity = models.PositiveIntegerField()
     active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
 
     def __str__(self):
@@ -211,6 +219,8 @@ class ProductionReels(models.Model):
         verbose_name_plural = 'Production Reels'
     production = models.ForeignKey(Production, on_delete=models.CASCADE)
     reel = models.ForeignKey(PaperReels, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
 
     def __str__(self):
@@ -223,6 +233,8 @@ class Stock(models.Model):
         verbose_name_plural = 'Stocks'
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     stock_quantity = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
 
     def __str__(self):

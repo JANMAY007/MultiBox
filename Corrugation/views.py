@@ -380,7 +380,7 @@ def purchase_order(request):
 
     context = {
         'purchase_order_list': po_active_count_by_given_by,
-        'products': Product.objects.all(),
+        'products': Product.objects.filter(tenant=tenant).values('product_name', 'pk'),
         'po_given_by_choices': PurchaseOrder.get_po_given_by_choices(tenant),
     }
     return render(request, 'purchase_order.html', context)
@@ -396,8 +396,6 @@ def purchase_order_archive(request):
                                    .values_list('po_given_by', flat=True).distinct())
     context = {
         'purchase_order_list': po_active_count_by_given_by,
-        'products': Product.objects.all(),
-        'po_given_by_choices': PurchaseOrder.get_po_given_by_choices(tenant),
     }
     return render(request, 'purchase_order_archive.html', context)
 
@@ -427,11 +425,16 @@ def add_purchase_order_detailed(request):
 @login_required
 def add_purchase_order_detail(request):
     if request.method == 'POST':
+        tenant = get_tenant_for_user(request.user)
+        if tenant is None:
+            messages.error(request, 'You are not associated with any tenant.')
+            return redirect('Corrugation:register_tenant')
         po_given_by = request.POST['po_given_by']
         # Get purchase orders for the given month and po_given_by
         purchase_orders = PurchaseOrder.objects.filter(
             po_given_by=po_given_by,
-            active=True
+            active=True,
+            product_name__tenant=tenant
         ).select_related('product_name')
 
         # Get dispatches for the selected purchase orders
@@ -464,11 +467,16 @@ def add_purchase_order_detail(request):
 @login_required
 def purchase_order_detail_archive(request):
     if request.method == 'POST':
+        tenant = get_tenant_for_user(request.user)
+        if tenant is None:
+            messages.error(request, 'You are not associated with any tenant.')
+            return redirect('Corrugation:register_tenant')
         po_given_by = request.POST['po_given_by']
         # Get purchase orders for the given month and po_given_by
         purchase_orders = PurchaseOrder.objects.filter(
             po_given_by=po_given_by,
-            active=False
+            active=False,
+            product_name__tenant=tenant
         ).select_related('product_name')
 
         # Get dispatches for the selected purchase orders
@@ -552,7 +560,11 @@ def daily_program(request):
         )
         messages.success(request, 'Program added successfully.')
         return redirect('Corrugation:daily_program')
-    programs = Program.objects.filter(active=True)
+    tenant = get_tenant_for_user(request.user)
+    if tenant is None:
+        messages.error(request, 'You are not associated with any tenant.')
+        return redirect('Corrugation:register_tenant')
+    programs = Program.objects.filter(active=True, product__tenant=tenant).order_by('-program_date')
     # Prepare data to return
     programs_data = []
     for program in programs:
@@ -600,14 +612,18 @@ def daily_program(request):
         programs_data.append(program_data)
     context = {
         'programs': programs_data,
-        'products': Product.objects.all().values('product_name'),
+        'products': Product.objects.filter(tenant=tenant).values('product_name'),
     }
     return render(request, 'program.html', context)
 
 
 @login_required
 def program_archive(request):
-    programs = Program.objects.filter(active=False)
+    tenant = get_tenant_for_user(request.user)
+    if tenant is None:
+        messages.error(request, 'You are not associated with any tenant.')
+        return redirect('Corrugation:register_tenant')
+    programs = Program.objects.filter(active=False, product__tenant=tenant).order_by('-program_date')
     programs_data = []
     for program in programs:
         product = program.product
@@ -683,6 +699,10 @@ def delete_program_view(request):
 
 @login_required
 def production(request):
+    tenant = get_tenant_for_user(request.user)
+    if tenant is None:
+        messages.error(request, 'You are not associated with any tenant.')
+        return redirect('Corrugation:register_tenant')
     if request.method == 'POST':
         # Extract data from POST request
         data = request.POST
@@ -691,7 +711,7 @@ def production(request):
         production_quantity = data.get('production_quantity')
 
         # Create a new Production instance
-        product_instance = Product.objects.get(product_name=product_name)
+        product_instance = Product.objects.filter(product_name=product_name, tenant=tenant)
         production_object = Production.objects.create(
             product=product_instance,
             production_quantity=production_quantity,
@@ -702,7 +722,7 @@ def production(request):
         stock.save()
         # Create new ProductionReels instances for each reel number
         for reel_number in reel_numbers:
-            reel_instance = PaperReels.objects.get(reel_number=reel_number)
+            reel_instance = PaperReels.objects.get(reel_number=reel_number, tenant=tenant)
             ProductionReels.objects.create(
                 production=production_object,
                 reel=reel_instance,
@@ -724,8 +744,8 @@ def production(request):
         })
 
     context = {
-        'products': Product.objects.all().values('product_name'),
-        'reels': PaperReels.objects.all().values('reel_number'),
+        'products': Product.objects.filter(tenant=tenant).values('product_name'),
+        'reels': PaperReels.objects.filter(tenant=tenant).values('reel_number'),
         'productions': production_data,
     }
     return render(request, 'production.html', context)
@@ -733,7 +753,11 @@ def production(request):
 
 @login_required
 def production_archive(request):
-    production_objects = Production.objects.filter(active=False)
+    tenant = get_tenant_for_user(request.user)
+    if tenant is None:
+        messages.error(request, 'You are not associated with any tenant.')
+        return redirect('Corrugation:register_tenant')
+    production_objects = Production.objects.filter(active=False, product__tenant=tenant)
     production_data = []
     for production_object in production_objects:
         production_reels = ProductionReels.objects.filter(production=production_object)
