@@ -58,6 +58,38 @@ def get_tenant_for_user(user):
 
 
 @login_required
+def stocks(request):
+    if request.method == 'POST':
+        product_name = request.POST.get('product_name')
+        stock_quantity = request.POST.get('stock_quantity')
+        try:
+            stock_quantity = int(stock_quantity)
+            product = Product.objects.get(product_name=product_name)
+            stock, created = Stock.objects.get_or_create(product=product)
+            stock.stock_quantity = stock_quantity
+            stock.save()
+        except (ValueError, TypeError):
+            pass
+        messages.info(request, 'Stock updated successfully.')
+        return redirect('Corrugation:index')
+    context = {
+        'products': Product.objects.all().values('product_name'),
+        'stocks': Stock.objects.all().values('product__product_name', 'stock_quantity', 'pk'),
+    }
+    return render(request, 'stocks.html', context)
+
+
+@login_required
+def delete_stock(request, pk):
+    stock = Stock.objects.get(pk=pk)
+    if request.method == 'POST':
+        stock.delete()
+        messages.error(request, 'Stock item deleted successfully.')
+        return redirect(reverse('Corrugation:index'))  # Adjust the URL name if needed
+    return render(request, 'stocks.html', {'stock': stock})
+
+
+@login_required
 def search_reels(request):
     query = request.GET.get('q', '')
     tenant = get_tenant_for_user(request.user)
@@ -289,6 +321,9 @@ def update_products(request, pk):
         product.bf = request.POST.get('bf', None)
         product.cs = request.POST.get('cs', None)
         product.save()
+
+        # Collect existing partitions for the product
+        existing_partitions = list(product.partition_set.all())
         partitions_data = {}
 
         # Iterate through POST data to organize it by partition
@@ -306,9 +341,14 @@ def update_products(request, pk):
                 partitions_data[part_idx][field_name] = value
 
         # Now process each partition
-        for partition_data in partitions_data.values():
-            # Retrieve or create a new Partition instance
-            partition = get_object_or_404(Partition, product_name=product)
+        for idx, partition_data in partitions_data.items():
+            if int(idx) <= len(existing_partitions):
+                # Update existing partition
+                partition = existing_partitions[int(idx) - 1]
+            else:
+                # Create new partition
+                partition = Partition(product_name=product)
+
             partition.partition_type = partition_data.get('type')
             partition.partition_size = partition_data.get('size')
             partition.partition_od = partition_data.get('od')
