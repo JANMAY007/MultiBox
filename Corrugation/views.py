@@ -2,13 +2,15 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Tenant, TenantEmployees, PaperReels, Product, Partition
+from .models import (Tenant, TenantEmployees, PaperReels, Product, Partition,
+                     PurchaseOrder, Dispatch, Stock)
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+import django.db.utils
 
 
 @login_required
@@ -360,3 +362,166 @@ def product_detail_archive(request, pk):
         'partitions': partitions
     }
     return render(request, 'product_detail_archive.html', context)
+
+
+@login_required
+def purchase_order(request):
+    tenant = get_tenant_for_user(request.user)
+    if tenant is None:
+        messages.error(request, 'You are not associated with any tenant.')
+        return redirect('Corrugation:register_tenant')
+    po_active_count_by_given_by = (PurchaseOrder.objects.filter(active=True)
+                                   .values_list('po_given_by', flat=True).distinct())
+
+    context = {
+        'purchase_order_list': po_active_count_by_given_by,
+        'products': Product.objects.all(),
+        'po_given_by_choices': PurchaseOrder.get_po_given_by_choices(tenant),
+    }
+    return render(request, 'purchase_order.html', context)
+
+
+@login_required
+def purchase_order_archive(request):
+    tenant = get_tenant_for_user(request.user)
+    if tenant is None:
+        messages.error(request, 'You are not associated with any tenant.')
+        return redirect('Corrugation:register_tenant')
+    po_active_count_by_given_by = (PurchaseOrder.objects.filter(active=False)
+                                   .values_list('po_given_by', flat=True).distinct())
+    context = {
+        'purchase_order_list': po_active_count_by_given_by,
+        'products': Product.objects.all(),
+        'po_given_by_choices': PurchaseOrder.get_po_given_by_choices(tenant),
+    }
+    return render(request, 'purchase_order_archive.html', context)
+
+
+@login_required
+def add_purchase_order_detailed(request):
+    if request.method == 'POST':
+        product_id = request.POST['product_name']
+        product = get_object_or_404(Product, id=product_id)
+        po_given_by = request.POST['po_given_by']
+        po_number = request.POST['po_number']
+        po_date = request.POST['po_date']
+        rate = request.POST['rate']
+        po_quantity = request.POST['po_quantity']
+
+        PurchaseOrder.objects.create(
+            product_name=product,
+            po_given_by=po_given_by,
+            po_number=po_number,
+            po_date=po_date,
+            rate=rate,
+            po_quantity=po_quantity
+        )
+        return redirect('Corrugation:purchase_order')
+
+
+@login_required
+def add_purchase_order_detail(request):
+    if request.method == 'POST':
+        po_given_by = request.POST['po_given_by']
+        # Get purchase orders for the given month and po_given_by
+        purchase_orders = PurchaseOrder.objects.filter(
+            po_given_by=po_given_by,
+            active=True
+        ).select_related('product_name')
+
+        # Get dispatches for the selected purchase orders
+        purchase_order_ids = purchase_orders.values_list('pk', flat=True)
+        dispatches = Dispatch.objects.filter(po_id__in=purchase_order_ids).select_related('po')
+        # Group dispatches by purchase order
+        dispatches_dict = {}
+        for dispatch in dispatches:
+            if dispatch.po_id not in dispatches_dict:
+                dispatches_dict[dispatch.po_id] = []
+            dispatches_dict[dispatch.po_id].append(dispatch)
+
+        # Add dispatches to purchase orders
+        for po in purchase_orders:
+            po.dispatches = dispatches_dict.get(po.id, [])
+        for po in purchase_orders:
+            total_dispatch_quantity = sum(dispatch.dispatch_quantity for dispatch in po.dispatches)
+            po.remaining_quantity = po.po_quantity - total_dispatch_quantity
+            po.max_remaining_quantity = po.po_quantity + (po.po_quantity * 5 / 100) - total_dispatch_quantity
+            po.material_code = po.product_name.material_code
+            po.box_no = po.product_name.box_no
+        context = {
+            'purchase_orders': purchase_orders,
+        }
+        messages.success(request, 'Purchase order added successfully.')
+        return render(request, 'purchase_order_details.html', context)
+    return redirect('Corrugation:purchase_order')
+
+
+@login_required
+def purchase_order_detail_archive(request):
+    if request.method == 'POST':
+        po_given_by = request.POST['po_given_by']
+        # Get purchase orders for the given month and po_given_by
+        purchase_orders = PurchaseOrder.objects.filter(
+            po_given_by=po_given_by,
+            active=False
+        ).select_related('product_name')
+
+        # Get dispatches for the selected purchase orders
+        purchase_order_ids = purchase_orders.values_list('pk', flat=True)
+        dispatches = Dispatch.objects.filter(po_id__in=purchase_order_ids).select_related('po')
+        # Group dispatches by purchase order
+        dispatches_dict = {}
+        for dispatch in dispatches:
+            if dispatch.po_id not in dispatches_dict:
+                dispatches_dict[dispatch.po_id] = []
+            dispatches_dict[dispatch.po_id].append(dispatch)
+
+        # Add dispatches to purchase orders
+        for po in purchase_orders:
+            po.dispatches = dispatches_dict.get(po.id, [])
+        for po in purchase_orders:
+            total_dispatch_quantity = sum(dispatch.dispatch_quantity for dispatch in po.dispatches)
+            po.remaining_quantity = po.po_quantity - total_dispatch_quantity
+            po.max_remaining_quantity = po.po_quantity + (po.po_quantity * 5 / 100) - total_dispatch_quantity
+            po.material_code = po.product_name.material_code
+            po.box_no = po.product_name.box_no
+        context = {
+            'purchase_orders': purchase_orders,
+        }
+        messages.success(request, 'Purchase order added successfully.')
+        return render(request, 'purchase_order_details_archive.html', context)
+    return redirect('Corrugation:purchase_order_archive')
+
+
+@login_required
+def delete_purchase_order(request, pk):
+    if request.method == 'POST':
+        po = get_object_or_404(PurchaseOrder, pk=pk)
+        po.active = False
+        po.save()
+        messages.error(request, 'Purchase order deleted successfully.')
+        return redirect('Corrugation:purchase_order')
+
+
+@login_required
+def add_dispatch(request):
+    if request.method == 'POST':
+        pk = request.POST.get('pk')
+        po = get_object_or_404(PurchaseOrder, id=pk)
+        dispatch_date = request.POST['dispatch_date']
+        dispatch_quantity = request.POST['dispatch_quantity']
+
+        Dispatch.objects.create(
+            po=po,
+            dispatch_date=dispatch_date,
+            dispatch_quantity=dispatch_quantity
+        )
+        try:
+            stock = Stock.objects.get(product=po.product_name)
+            stock.stock_quantity -= int(dispatch_quantity)
+            stock.save()
+        except django.db.utils.IntegrityError:
+            pass
+        messages.success(request, 'Dispatch added successfully.')
+        return redirect('Corrugation:purchase_order')
+    return redirect('Corrugation:purchase_order')

@@ -174,3 +174,57 @@ class Dispatch(models.Model):
 
     def __str__(self):
         return f'{self.po} - {self.dispatch_date}'
+
+
+class Program(models.Model):
+    class Meta:
+        verbose_name = 'Program'
+        verbose_name_plural = 'Programs'
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    program_quantity = models.PositiveIntegerField()
+    program_date = models.DateField()
+    program_notes = models.TextField()
+    active = models.BooleanField(default=True)
+    objects = models.manager
+
+    def __str__(self):
+        return f'{self.program_date}'
+
+
+class Production(models.Model):
+    class Meta:
+        verbose_name = 'Production'
+        verbose_name_plural = 'Productions'
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    production_date = models.DateField()
+    production_quantity = models.PositiveIntegerField()
+    active = models.BooleanField(default=True)
+    objects = models.manager
+
+    def __str__(self):
+        return f'{self.product} - {self.production_date}'
+
+
+class ProductionReels(models.Model):
+    class Meta:
+        verbose_name = 'Production Reel'
+        verbose_name_plural = 'Production Reels'
+    production = models.ForeignKey(Production, on_delete=models.CASCADE)
+    reel = models.ForeignKey(PaperReels, on_delete=models.CASCADE)
+    objects = models.manager
+
+    def __str__(self):
+        return f'{self.production} - {self.reel}'
+
+
+class Stock(models.Model):
+    class Meta:
+        verbose_name = 'Stock'
+        verbose_name_plural = 'Stocks'
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    stock_quantity = models.PositiveIntegerField(default=0)
+    objects = models.manager
+
+    def __str__(self):
+        return f'{self.product} - {self.stock_quantity}'
+
