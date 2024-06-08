@@ -63,7 +63,7 @@ class Product(models.Model):
         ]
 
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
-    product_name = models.CharField(max_length=100, unique=True)
+    product_name = models.CharField(max_length=100)
     box_no = models.CharField(max_length=8, blank=True)
     material_code = models.CharField(max_length=10, blank=True)
     size = models.CharField(max_length=10, blank=True)
