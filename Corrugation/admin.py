@@ -1,7 +1,8 @@
 from django.contrib import admin
 from .forms import PurchaseOrderForm
 from .models import (Tenant, TenantEmployees, PaperReels, Product, Partition,
-                     PurchaseOrder, Dispatch)
+                     PurchaseOrder, Dispatch, Program, Production, ProductionReels,
+                     Stock)
 
 
 admin.site.register(PaperReels)
@@ -47,3 +48,7 @@ class PurchaseOrderAdmin(admin.ModelAdmin):
 
 
 admin.site.register(PurchaseOrder, PurchaseOrderAdmin)
+admin.site.register(Program)
+admin.site.register(Production)
+admin.site.register(ProductionReels)
+admin.site.register(Stock)

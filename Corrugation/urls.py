@@ -5,7 +5,10 @@ from .views import (search_reels, paper_reels, update_reel, delete_reel,
                     product_detail_archive, register_tenant, purchase_order,
                     add_purchase_order_detail, add_purchase_order_detailed,
                     purchase_order_archive, purchase_order_detail_archive,
-                    delete_purchase_order, add_dispatch)
+                    delete_purchase_order, add_dispatch, daily_program, program_archive,
+                    edit_program_view, delete_program_view, production,
+                    production_archive, update_production_quantity, add_reel_to_production,
+                    delete_production)
 
 app_name = 'Corrugation'
 
@@ -30,4 +33,13 @@ urlpatterns = [
     path('purchase_order_detail_archive/<int:pk>/', purchase_order_detail_archive, name='purchase_order_detail_archive'),
     path('delete_purchase_order/<int:pk>/', delete_purchase_order, name='delete_purchase_order'),
     path('add_dispatch/', add_dispatch, name='add_dispatch'),
+    path('daily_program/', daily_program, name='daily_program'),
+    path('program_archive/', program_archive, name='program_archive'),
+    path('edit_program_view/', edit_program_view, name='edit_program_view'),
+    path('delete_program_view/', delete_program_view, name='delete_program_view'),
+    path('production/', production, name='production'),
+    path('production_archive/', production_archive, name='production_archive'),
+    path('update_production_quantity/', update_production_quantity, name='update_production_quantity'),
+    path('add_reel_to_production/', add_reel_to_production, name='add_reel_to_production'),
+    path('delete_production/', delete_production, name='delete_production'),
 ]

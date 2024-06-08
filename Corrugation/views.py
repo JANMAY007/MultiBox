@@ -1,9 +1,14 @@
+from datetime import datetime
 from django.conf import settings
 from django.http import JsonResponse
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.utils import timezone
+
 from .models import (Tenant, TenantEmployees, PaperReels, Product, Partition,
-                     PurchaseOrder, Dispatch, Stock)
+                     PurchaseOrder, Dispatch, Stock, Program, Production,
+                     ProductionReels)
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -525,3 +530,271 @@ def add_dispatch(request):
         messages.success(request, 'Dispatch added successfully.')
         return redirect('Corrugation:purchase_order')
     return redirect('Corrugation:purchase_order')
+
+
+@login_required
+def daily_program(request):
+    if request.method == 'POST':
+        # Extract data from POST request
+        data = request.POST
+        product_name = data.get('product_name')
+        program_quantity = data.get('program_quantity')
+        program_date_str = data.get('program_date')
+        program_notes = data.get('program_notes')
+        # Convert program_date from string to datetime
+        program_date = datetime.strptime(program_date_str, '%Y-%m-%d').date()
+        # Create a new Program instance
+        Program.objects.create(
+            product=Product.objects.get(product_name=product_name),
+            program_quantity=program_quantity,
+            program_date=program_date,
+            program_notes=program_notes
+        )
+        messages.success(request, 'Program added successfully.')
+        return redirect('Corrugation:daily_program')
+    programs = Program.objects.filter(active=True)
+    # Prepare data to return
+    programs_data = []
+    for program in programs:
+        # Get related product
+        product = program.product
+
+        # Get related partitions for the product
+        partitions = Partition.objects.filter(product_name=product)
+
+        # Prepare partition data
+        partitions_data = []
+        for partition in partitions:
+            partition_data = {
+                'partition_size': partition.partition_size,
+                'partition_od': partition.partition_od,
+                'deckle_cut': partition.deckle_cut,
+                'length_cut': partition.length_cut,
+                'partition_type': partition.get_partition_type_display(),
+                'ply_no': partition.get_ply_no_display(),
+                'partition_weight': partition.partition_weight
+            }
+            partitions_data.append(partition_data)
+
+        # Prepare program data
+        program_data = {
+            'product_name': product.product_name,
+            'box_no': product.box_no,
+            'material_code': product.material_code,
+            'size': product.size,
+            'inner_length': product.inner_length,
+            'inner_breadth': product.inner_breadth,
+            'inner_depth': product.inner_depth,
+            'outer_length': product.outer_length,
+            'outer_breadth': product.outer_breadth,
+            'outer_depth': product.outer_depth,
+            'gsm': product.gsm,
+            'bf': product.bf,
+            'color': product.color,
+            'weight': product.weight,
+            'partitions': partitions_data,
+            'program_quantity': program.program_quantity,
+            'program_date': program.program_date.strftime('%Y-%m-%d'),
+            'program_notes': program.program_notes,
+        }
+        programs_data.append(program_data)
+    context = {
+        'programs': programs_data,
+        'products': Product.objects.all().values('product_name'),
+    }
+    return render(request, 'program.html', context)
+
+
+@login_required
+def program_archive(request):
+    programs = Program.objects.filter(active=False)
+    programs_data = []
+    for program in programs:
+        product = program.product
+        partitions = Partition.objects.filter(product_name=product)
+        partitions_data = []
+        for partition in partitions:
+            partition_data = {
+                'partition_size': partition.partition_size,
+                'partition_od': partition.partition_od,
+                'deckle_cut': partition.deckle_cut,
+                'length_cut': partition.length_cut,
+                'partition_type': partition.get_partition_type_display(),
+                'ply_no': partition.get_ply_no_display(),
+                'partition_weight': partition.partition_weight
+            }
+            partitions_data.append(partition_data)
+        program_data = {
+            'product_name': product.product_name,
+            'box_no': product.box_no,
+            'material_code': product.material_code,
+            'size': product.size,
+            'inner_length': product.inner_length,
+            'inner_breadth': product.inner_breadth,
+            'inner_depth': product.inner_depth,
+            'outer_length': product.outer_length,
+            'outer_breadth': product.outer_breadth,
+            'outer_depth': product.outer_depth,
+            'gsm': product.gsm,
+            'bf': product.bf,
+            'color': product.color,
+            'weight': product.weight,
+            'partitions': partitions_data,
+            'program_quantity': program.program_quantity,
+            'program_date': program.program_date.strftime('%Y-%m-%d'),
+            'program_notes': program.program_notes,
+        }
+        programs_data.append(program_data)
+    context = {
+        'programs': programs_data,
+    }
+    return render(request, 'program_archive.html', context)
+
+
+@login_required
+def edit_program_view(request):
+    if request.method == 'POST':
+        product_name = request.POST.get('product_name')
+        program_quantity = request.POST.get('program_quantity')
+        program_date = request.POST.get('program_date')
+        program_notes = request.POST.get('program_notes')
+        program = get_object_or_404(Program, product__product_name=product_name)
+        program.product_name = product_name
+        program.program_quantity = program_quantity
+        program.program_date = program_date
+        program.program_notes = program_notes
+        program.save()
+        messages.info(request, 'Program updated successfully.')
+        return redirect(reverse('Corrugation:daily_program'))
+    return redirect(reverse('Corrugation:daily_program'))
+
+
+@login_required
+def delete_program_view(request):
+    if request.method == 'POST':
+        product_name = request.POST.get('product_name')
+        program = Program.objects.get(product__product_name=product_name)
+        program.active = False
+        program.save()
+        messages.error(request, 'Program deleted successfully.')
+        return redirect(reverse('Corrugation:daily_program'))
+    return redirect(reverse('Corrugation:daily_program'))
+
+
+@login_required
+def production(request):
+    if request.method == 'POST':
+        # Extract data from POST request
+        data = request.POST
+        product_name = data.get('product')
+        reel_numbers = data.getlist('reels')  # getlist to handle multiple reels
+        production_quantity = data.get('production_quantity')
+
+        # Create a new Production instance
+        product_instance = Product.objects.get(product_name=product_name)
+        production_object = Production.objects.create(
+            product=product_instance,
+            production_quantity=production_quantity,
+            production_date=timezone.now(),
+        )
+        stock, create = Stock.objects.get_or_create(product=product_instance)
+        stock.stock_quantity += int(production_quantity)
+        stock.save()
+        # Create new ProductionReels instances for each reel number
+        for reel_number in reel_numbers:
+            reel_instance = PaperReels.objects.get(reel_number=reel_number)
+            ProductionReels.objects.create(
+                production=production_object,
+                reel=reel_instance,
+            )
+        messages.success(request, 'Production added successfully.')
+        return redirect('Corrugation:production')
+
+    production_objects = Production.objects.filter(active=True)
+    production_data = []
+    for production_object in production_objects:
+        production_reels = ProductionReels.objects.filter(production=production_object)
+        reels_data = [reel.reel.reel_number for reel in production_reels]
+        production_data.append({
+            'pk': production_object.pk,
+            'product_name': production_object.product.product_name,
+            'production_quantity': production_object.production_quantity,
+            'production_date': production_object.production_date,
+            'reels': reels_data,
+        })
+
+    context = {
+        'products': Product.objects.all().values('product_name'),
+        'reels': PaperReels.objects.all().values('reel_number'),
+        'productions': production_data,
+    }
+    return render(request, 'production.html', context)
+
+
+@login_required
+def production_archive(request):
+    production_objects = Production.objects.filter(active=False)
+    production_data = []
+    for production_object in production_objects:
+        production_reels = ProductionReels.objects.filter(production=production_object)
+        reels_data = [reel.reel.reel_number for reel in production_reels]
+        production_data.append({
+            'pk': production_object.pk,
+            'product_name': production_object.product.product_name,
+            'production_quantity': production_object.production_quantity,
+            'production_date': production_object.production_date,
+            'reels': reels_data,
+        })
+
+    context = {
+        'productions': production_data,
+    }
+    return render(request, 'production_archive.html', context)
+
+
+@login_required
+def update_production_quantity(request):
+    if request.method == 'POST':
+        production_object = get_object_or_404(Production, pk=request.POST.get('pk'))
+        product = Product.objects.get(product_name=production_object.product.product_name)
+        stock, created = Stock.objects.get_or_create(product=product)
+        stock.stock_quantity -= int(production_object.production_quantity)
+        production_object.production_quantity = request.POST.get('production_quantity')
+        production_object.save()
+        stock.stock_quantity += int(production_object.production_quantity)
+        stock.save()
+        messages.info(request, 'Production quantity updated successfully.')
+        return redirect('Corrugation:production')
+    return redirect('Corrugation:production')
+
+
+@login_required
+def add_reel_to_production(request):
+    if request.method == 'POST':
+        production_object = get_object_or_404(Production, pk=request.POST.get('pk'))
+        reel_number = request.POST.get('reel_number')
+        try:
+            reel = PaperReels.objects.get(reel_number=reel_number)
+            ProductionReels.objects.create(production=production_object, reel=reel)
+        except PaperReels.DoesNotExist:
+            # Optionally handle the error if reel does not exist
+            pass
+        messages.success(request, 'Reel added to production successfully.')
+        return redirect('Corrugation:production')
+    return redirect('Corrugation:production')
+
+
+@login_required
+def delete_production(request):
+    if request.method == 'POST':
+        production_object = get_object_or_404(Production, pk=request.POST.get('pk'))
+        # delete reels that are used in production
+        used_reels = ProductionReels.objects.filter(production=production_object)
+        for reel in used_reels:
+            PaperReels.objects.filter(reel_number=reel.reel.reel_number).used = True
+        # ProductionReels.objects.filter(production=production_object).delete()
+        production_object.active = False
+        production_object.save()
+        messages.error(request, 'Production deleted successfully.')
+        return redirect('Corrugation:production')
+    return redirect('Corrugation:production')
