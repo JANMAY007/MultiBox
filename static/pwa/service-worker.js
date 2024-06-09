@@ -14,10 +14,17 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        return cache.addAll(urlsToCache);
+        return cache.addAll(urlsToCache.map(url => {
+          return new Request(url, { cache: 'reload' });
+        })).then(() => {
+          console.log('All resources cached successfully!');
+        }).catch(error => {
+          console.error('Failed to cache resources:', error);
+        });
       })
   );
 });
+
 
 // Fetch event to serve cached assets
 self.addEventListener('fetch', event => {
