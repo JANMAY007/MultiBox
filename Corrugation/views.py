@@ -592,7 +592,7 @@ def add_dispatch(request):
             dispatch_quantity=dispatch_quantity
         )
         try:
-            stock = Stock.objects.get(product=po.product_name)
+            stock, created = Stock.objects.get_or_create(product=po.product_name)
             stock.stock_quantity -= int(dispatch_quantity)
             stock.save()
         except django.db.utils.IntegrityError:
