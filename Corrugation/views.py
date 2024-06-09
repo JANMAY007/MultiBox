@@ -68,6 +68,23 @@ def inactive_tenant_page(request):
 
 
 @login_required
+def contact_support(request):
+    if request.method == 'POST':
+        name = request.POST['name']
+        email = request.POST['email']
+        message = request.POST['message']
+        send_mail(
+            f'Support Request from {name}',
+            message,
+            email,
+            ['janmaybhatt1903@gmail.com'],
+        )
+        messages.success(request, 'Your message has been sent successfully!')
+        return redirect('Corrugation:stocks')
+    return render(request, 'contact_support.html')
+
+
+@login_required
 def stocks(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:

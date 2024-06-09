@@ -8,13 +8,15 @@ from .views import (search_reels, paper_reels, update_reel, delete_reel,
                     delete_purchase_order, add_dispatch, daily_program, program_archive,
                     edit_program_view, delete_program_view, production,
                     production_archive, update_production_quantity, add_reel_to_production,
-                    delete_production, stocks, delete_stock, inactive_tenant_page)
+                    delete_production, stocks, delete_stock, inactive_tenant_page,
+                    contact_support)
 
 app_name = 'Corrugation'
 
 urlpatterns = [
     path('register_tenant/', register_tenant, name='register_tenant'),
     path('inactive_tenant_page/', inactive_tenant_page, name='inactive_tenant_page'),
+    path('contact_support/', contact_support, name='contact_support'),
     path('paper_reels/', paper_reels, name='paper_reels'),
     path('search_reels/', search_reels, name='search_reels'),
     path('update_reel/<int:pk>/', update_reel, name='update_reel'),
