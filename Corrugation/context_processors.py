@@ -1,3 +1,4 @@
+from django.conf import settings
 from .models import Tenant, TenantEmployees
 
 
@@ -12,6 +13,6 @@ def tenant_logo(request):
             except TenantEmployees.DoesNotExist:
                 tenant = None
 
-        if tenant:
-            return {'tenant_logo_url': tenant.tenant_logo.url}
+        if tenant and tenant.tenant_logo:
+            return {'tenant_logo_url': settings.MEDIA_URL + str(tenant.tenant_logo)}
     return {'tenant_logo_url': None}

@@ -8,6 +8,8 @@
     <title>{% block title %}
 
     {% endblock %}</title>
+    <link rel="icon" type="image/svg" href="{% static 'logo/logo.svg' %}">
+    {% comment %}
     <!-- Favicon and Icons -->
     <link rel="icon" type="image/png" sizes="71x71" href="{% static 'pwa_logos/windows11/SmallTile.scale-100.png' %}">
     <link rel="icon" type="image/png" sizes="89x89" href="{% static 'pwa_logos/windows11/SmallTile.scale-125.png' %}">
@@ -99,6 +101,7 @@
     <link rel="apple-touch-icon" sizes="256x256" href="{% static 'pwa_logos/ios/256.png' %}">
     <link rel="apple-touch-icon" sizes="512x512" href="{% static 'pwa_logos/ios/512.png' %}">
     <link rel="apple-touch-icon" sizes="1024x1024" href="{% static 'pwa_logos/ios/1024.png' %}">
+    {% endcomment %}
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <script href="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
     <link rel="manifest" href="{% static 'pwa/manifest.json' %}" crossorigin="use-credentials">
@@ -140,7 +143,9 @@
                         <img src="{% static 'logo/logo.png' %}" alt="logo" style="max-width: 35px">
                     {% endif %}
                 </div>
-                <div class="sidebar-brand-text mx-3"><span>SP</span></div>
+                <div class="sidebar-brand-text mx-3">
+                    <span>MultiBox</span>
+                </div>
             </a>
             <ul class="navbar-nav text-light" id="accordionSidebar">
                 <li class="nav-item"><a class="nav-link" href="{% url 'Corrugation:stocks' %}"><i

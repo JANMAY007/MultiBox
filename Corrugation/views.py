@@ -48,14 +48,14 @@ def register_tenant(request):
 def get_tenant_for_user(request):
     try:
         tenant = Tenant.objects.get(owner=request.user)
-        if not tenant.is_active:
+        if not tenant.active:
             return redirect('inactive_tenant_page')
         return tenant
     except Tenant.DoesNotExist:
         try:
             tenant_employee = TenantEmployees.objects.get(user=request.user)
             tenant = tenant_employee.tenant
-            if not tenant.is_active:
+            if not tenant.active:
                 return redirect('inactive_tenant_page')
             return tenant
         except TenantEmployees.DoesNotExist:

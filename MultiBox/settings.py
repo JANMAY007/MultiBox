@@ -166,12 +166,12 @@ ACCOUNT_PRESERVE_USERNAME_CASING = True
 ACCOUNT_USERNAME_MIN_LENGTH = 5
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_USERNAME_VALIDATORS = None
-ACCOUNT_RATE_LIMITS = {
-    'login_failed': {
-        'LIMIT': 5,  # Number of login attempts allowed
-        'TIMEOUT': 1800,  # Block duration in seconds after reaching the limit
-    },
-}
+# ACCOUNT_RATE_LIMITS = {
+#     'login_failed': {
+#         'LIMIT': 5,  # Number of login attempts allowed
+#         'TIMEOUT': 1800,  # Block duration in seconds after reaching the limit
+#     },
+# }
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
 ACCOUNT_USER_MODEL_EMAIL_FIELD = 'email'
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECTED_URL = '/accounts/login/'
