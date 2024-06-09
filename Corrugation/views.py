@@ -62,12 +62,17 @@ def get_tenant_for_user(request):
             return None
 
 
+@login_required
 def inactive_tenant_page(request):
     return render(request, 'inactive_tenant.html')
 
 
 @login_required
 def stocks(request):
+    tenant = get_tenant_for_user(request)
+    if tenant is None:
+        messages.error(request, 'You are not associated with any tenant.')
+        return redirect('Corrugation:register_tenant')
     if request.method == 'POST':
         product_name = request.POST.get('product_name')
         stock_quantity = request.POST.get('stock_quantity')
@@ -82,8 +87,8 @@ def stocks(request):
         messages.info(request, 'Stock updated successfully.')
         return redirect('Corrugation:index')
     context = {
-        'products': Product.objects.all().values('product_name'),
-        'stocks': Stock.objects.all().values('product__product_name', 'stock_quantity', 'pk'),
+        'products': Product.objects.filter(tenant=tenant).values('product_name'),
+        'stocks': Stock.objects.filter(product__tenant=tenant).values('product__product_name', 'stock_quantity', 'pk'),
     }
     return render(request, 'stocks.html', context)
 
@@ -93,8 +98,8 @@ def delete_stock(request, pk):
     stock = Stock.objects.get(pk=pk)
     if request.method == 'POST':
         stock.delete()
-        messages.error(request, 'Stock item deleted successfully.')
-        return redirect(reverse('Corrugation:index'))  # Adjust the URL name if needed
+        messages.error(request, 'Stock item cleared successfully.')
+        return redirect(reverse('Corrugation:stocks'))
     return render(request, 'stocks.html', {'stock': stock})
 
 
@@ -165,8 +170,8 @@ def paper_reels(request):
             messages.error(request, 'Invalid input. Please enter valid values.')
             return render(request, 'paper_reel.html')
 
-    reels_list = PaperReels.objects.filter(tenant=tenant)
-    paginator = Paginator(reels_list, 20)  # Show 20 reels per page
+    reels_list = PaperReels.objects.filter(tenant=tenant).order_by('-created_at')
+    paginator = Paginator(reels_list, 50)
     page = request.GET.get('page')
     try:
         reels = paginator.page(page)
