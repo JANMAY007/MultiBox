@@ -5,7 +5,6 @@ from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-
 from .models import (Tenant, TenantEmployees, PaperReels, Product, Partition,
                      PurchaseOrder, Dispatch, Stock, Program, Production,
                      ProductionReels)
@@ -46,15 +45,25 @@ def register_tenant(request):
     return render(request, 'register_tenant.html')
 
 
-def get_tenant_for_user(user):
+def get_tenant_for_user(request):
     try:
-        return Tenant.objects.get(owner=user)
+        tenant = Tenant.objects.get(owner=request.user)
+        if not tenant.is_active:
+            return redirect('inactive_tenant_page')
+        return tenant
     except Tenant.DoesNotExist:
         try:
-            tenant_employee = TenantEmployees.objects.get(user=user)
-            return tenant_employee.tenant
+            tenant_employee = TenantEmployees.objects.get(user=request.user)
+            tenant = tenant_employee.tenant
+            if not tenant.is_active:
+                return redirect('inactive_tenant_page')
+            return tenant
         except TenantEmployees.DoesNotExist:
             return None
+
+
+def inactive_tenant_page(request):
+    return render(request, 'inactive_tenant.html')
 
 
 @login_required
@@ -92,7 +101,7 @@ def delete_stock(request, pk):
 @login_required
 def search_reels(request):
     query = request.GET.get('q', '')
-    tenant = get_tenant_for_user(request.user)
+    tenant = get_tenant_for_user(request)
 
     if tenant is None:
         return JsonResponse({'results': []})
@@ -125,7 +134,7 @@ def search_reels(request):
 
 @login_required
 def paper_reels(request):
-    tenant = get_tenant_for_user(request.user)
+    tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Corrugation:register_tenant')
@@ -213,7 +222,7 @@ def restore_reel(request, pk):
 
 @login_required
 def add_product(request):
-    tenant = get_tenant_for_user(request.user)
+    tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Corrugation:register_tenant')
@@ -289,7 +298,7 @@ def add_product(request):
 
 @login_required
 def product_archive(request):
-    tenant = get_tenant_for_user(request.user)
+    tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Corrugation:register_tenant')
@@ -411,11 +420,11 @@ def product_detail_archive(request, pk):
 
 @login_required
 def purchase_order(request):
-    tenant = get_tenant_for_user(request.user)
+    tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Corrugation:register_tenant')
-    po_active_count_by_given_by = (PurchaseOrder.objects.filter(active=True)
+    po_active_count_by_given_by = (PurchaseOrder.objects.filter(active=True, product_name__tenant=tenant)
                                    .values_list('po_given_by', flat=True).distinct())
 
     context = {
@@ -428,11 +437,11 @@ def purchase_order(request):
 
 @login_required
 def purchase_order_archive(request):
-    tenant = get_tenant_for_user(request.user)
+    tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Corrugation:register_tenant')
-    po_active_count_by_given_by = (PurchaseOrder.objects.filter(active=False)
+    po_active_count_by_given_by = (PurchaseOrder.objects.filter(active=False, product_name__tenant=tenant)
                                    .values_list('po_given_by', flat=True).distinct())
     context = {
         'purchase_order_list': po_active_count_by_given_by,
@@ -465,7 +474,7 @@ def add_purchase_order_detailed(request):
 @login_required
 def add_purchase_order_detail(request):
     if request.method == 'POST':
-        tenant = get_tenant_for_user(request.user)
+        tenant = get_tenant_for_user(request)
         if tenant is None:
             messages.error(request, 'You are not associated with any tenant.')
             return redirect('Corrugation:register_tenant')
@@ -507,7 +516,7 @@ def add_purchase_order_detail(request):
 @login_required
 def purchase_order_detail_archive(request):
     if request.method == 'POST':
-        tenant = get_tenant_for_user(request.user)
+        tenant = get_tenant_for_user(request)
         if tenant is None:
             messages.error(request, 'You are not associated with any tenant.')
             return redirect('Corrugation:register_tenant')
@@ -600,7 +609,7 @@ def daily_program(request):
         )
         messages.success(request, 'Program added successfully.')
         return redirect('Corrugation:daily_program')
-    tenant = get_tenant_for_user(request.user)
+    tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Corrugation:register_tenant')
@@ -659,7 +668,7 @@ def daily_program(request):
 
 @login_required
 def program_archive(request):
-    tenant = get_tenant_for_user(request.user)
+    tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Corrugation:register_tenant')
@@ -739,7 +748,7 @@ def delete_program_view(request):
 
 @login_required
 def production(request):
-    tenant = get_tenant_for_user(request.user)
+    tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Corrugation:register_tenant')
@@ -793,7 +802,7 @@ def production(request):
 
 @login_required
 def production_archive(request):
-    tenant = get_tenant_for_user(request.user)
+    tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Corrugation:register_tenant')
