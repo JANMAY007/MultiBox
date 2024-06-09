@@ -151,34 +151,40 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_CHANGE_EMAIL = True
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_AUTHENTICATION_LOGIN_REDIRECT = True
-ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_CONFIRM_EMAIL_ON_GET = False
 ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
-
+ACCOUNT_EMAIL_NOTIFICATIONS = True
 ACCOUNT_SIGNUP_PASSWORD_VERIFICATION = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_PRESERVE_USERNAME_CASING = True
 ACCOUNT_USERNAME_MIN_LENGTH = 5
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_USERNAME_VALIDATORS = None
-# ACCOUNT_RATE_LIMITS = {
-#     'login_failed': {
-#         'LIMIT': 10,  # Number of login attempts allowed
-#         'TIMEOUT': 3600,  # Block duration in seconds after reaching the limit
-#     },
-# }
-
+ACCOUNT_RATE_LIMITS = {
+    'login_failed': {
+        'LIMIT': 5,  # Number of login attempts allowed
+        'TIMEOUT': 1800,  # Block duration in seconds after reaching the limit
+    },
+}
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
 ACCOUNT_USER_MODEL_EMAIL_FIELD = 'email'
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECTED_URL = '/accounts/login/'
 ACCOUNT_PASSWORD_INPUT_RENDER_VALUE = False
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True
-
+ACCOUNT_USERNAME_BLACKLIST = [
+    'ADMIN', 'Admin', 'admin', 'root', 'ROOT', 'Root', 'MULTIBOX', 'MultiBox', 'multibox', 'MULTI_BOX', 'Multi_Box',
+    'multi_box', 'MULTI-BOX', 'Multi-Box', 'multi-box', 'MULTIBOXADMIN', 'MultiBoxAdmin', 'multiboxadmin',
+    'MULTIBOX_ADMIN', 'MultiBox_Admin', 'multibox_admin', 'MULTI_BOX_ADMIN', 'Multi_Box_Admin', 'multi_box_admin',
+    'MULTI-BOX-ADMIN', 'Multi-Box-Admin', 'multi-box-admin', 'ADMINMULTIBOX', 'AdminMultiBox', 'adminmultibox',
+    'ADMIN_MULTIBOX', 'Admin_MultiBox', 'admin_multibox', 'ADMINMULTI_BOX', 'AdminMulti_Box', 'adminmulti_box',
+]
 # ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 
 SOCIALACCOUNT_DEBUG = True
