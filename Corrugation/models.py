@@ -11,12 +11,13 @@ class Tenant(models.Model):
     name = models.CharField(max_length=100, unique=True)
     active = models.BooleanField(default=True)
     tenant_logo = models.ImageField(upload_to='tenant_logo/')
+    amount_decided = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     object = models.manager
 
     def __str__(self):
-        return f'{self.name}'
+        return f'{self.name} - {self.amount_decided}'
 
 
 class TenantEmployees(models.Model):
@@ -32,6 +33,35 @@ class TenantEmployees(models.Model):
 
     def __str__(self):
         return f'{self.user.username}'
+
+
+class TenantGeneralInfo(models.Model):
+    class Meta:
+        verbose_name = 'Tenant General Info'
+        verbose_name_plural = 'Tenant General Infos'
+
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+    total_storage = models.PositiveIntegerField()
+    delete_before_days = models.PositiveSmallIntegerField()
+    database_copy = models.BooleanField(default=False)
+    monthly_report = models.BooleanField(default=False)
+    object = models.manager
+
+    def __str__(self):
+        return f'{self.tenant}'
+
+
+class TenantPaymentInfo(models.Model):
+    class Meta:
+        verbose_name = 'Tenant Payment Info'
+        verbose_name_plural = 'Tenant Payment Infos'
+
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+    payment_datetime = models.DateTimeField()
+    object = models.manager
+
+    def __str__(self):
+        return f'{self.tenant.name} - {self.payment_datetime}'
 
 
 class PaperReels(models.Model):
