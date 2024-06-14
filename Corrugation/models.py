@@ -45,6 +45,7 @@ class TenantGeneralInfo(models.Model):
     delete_before_days = models.PositiveSmallIntegerField()
     database_copy = models.BooleanField(default=False)
     monthly_report = models.BooleanField(default=False)
+    premium = models.BooleanField(default=False)
     object = models.manager
 
     def __str__(self):

@@ -126,7 +126,10 @@ def search_reels(request):
     tenant = get_tenant_for_user(request)
 
     if tenant is None:
-        return JsonResponse({'results': []})
+        return JsonResponse({'results': [], 'size_counts': {}})
+
+    results_data = []
+    size_counts = {}
 
     if query:
         results = PaperReels.objects.filter(
@@ -138,20 +141,22 @@ def search_reels(request):
             used=False,
             tenant=tenant,
         )
-        results_data = [
-            {
+
+        for reel in results:
+            results_data.append({
                 'reel_number': reel.reel_number,
                 'bf': reel.bf,
                 'gsm': reel.gsm,
                 'size': reel.size,
                 'weight': reel.weight,
-            }
-            for reel in results
-        ]
-    else:
-        results_data = []
+            })
 
-    return JsonResponse({'results': results_data})
+            if reel.size in size_counts:
+                size_counts[reel.size] += 1
+            else:
+                size_counts[reel.size] = 1
+
+    return JsonResponse({'results': results_data, 'size_counts': size_counts})
 
 
 @login_required
