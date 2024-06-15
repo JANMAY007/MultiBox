@@ -76,6 +76,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'Corrugation.context_processors.tenant_logo',
+                'Corrugation.context_processors.tenant_premium_check',
             ],
         },
     },

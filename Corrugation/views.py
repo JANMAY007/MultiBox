@@ -15,6 +15,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 import django.db.utils
+import pandas as pd
 
 
 @login_required
@@ -208,6 +209,49 @@ def paper_reels(request):
         'unused_reels': PaperReels.objects.filter(used=False, tenant=tenant).count(),
     }
     return render(request, 'paper_reel.html', context)
+
+
+@login_required
+def upload_bulk_reels(request):
+    tenant = get_tenant_for_user(request)
+    if tenant is None:
+        messages.error(request, 'You are not associated with any tenant.')
+        return redirect('Corrugation:register_tenant')
+    if request.method == 'POST':
+        if 'reel_file' in request.FILES:
+            file = request.FILES['reel_file']
+            try:
+                df = pd.read_excel(file)
+                # Define expected columns
+                expected_columns = ['Reel Number', 'BF', 'GSM', 'Size', 'Weight']
+                if list(df.columns) != expected_columns:
+                    return JsonResponse({'error': 'Invalid file format'}, status=400)
+
+                success_count = 0
+                error_count = 0
+                errors = []
+
+                for index, row in df.iterrows():
+                    try:
+                        PaperReels.objects.create(
+                            tenant=tenant,
+                            reel_number=int(row['Reel Number']),
+                            bf=row['BF'],
+                            gsm=row['GSM'],
+                            size=row['Size'],
+                            weight=row['Weight']
+                        )
+                        success_count += 1
+                    except Exception as e:
+                        error_count += 1
+                        errors.append(f"Row {index + 1}: {str(e)}")
+
+                return JsonResponse({'success_count': success_count, 'error_count': error_count, 'errors': errors})
+            except Exception as e:
+                return JsonResponse({'error': str(e)}, status=400)
+        else:
+            return JsonResponse({'error': 'No file uploaded'}, status=400)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
 @login_required
