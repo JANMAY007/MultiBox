@@ -495,6 +495,8 @@ def purchase_order(request):
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Corrugation:register_tenant')
+    if not request.user.is_staff:
+        return redirect('Corrugation:contact_support')
     po_active_count_by_given_by = (PurchaseOrder.objects.filter(active=True, product_name__tenant=tenant)
                                    .values_list('po_given_by', flat=True).distinct())
 
@@ -512,6 +514,8 @@ def purchase_order_archive(request):
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Corrugation:register_tenant')
+    if not request.user.is_staff:
+        return redirect('Corrugation:contact_support')
     po_active_count_by_given_by = (PurchaseOrder.objects.filter(active=False, product_name__tenant=tenant)
                                    .values_list('po_given_by', flat=True).distinct())
     context = {
@@ -522,6 +526,8 @@ def purchase_order_archive(request):
 
 @login_required
 def add_purchase_order_detailed(request):
+    if not request.user.is_staff:
+        return redirect('Corrugation:contact_support')
     if request.method == 'POST':
         product_id = request.POST['product_name']
         product = get_object_or_404(Product, id=product_id)
@@ -544,6 +550,8 @@ def add_purchase_order_detailed(request):
 
 @login_required
 def add_purchase_order_detail(request, po_given_by):
+    if not request.user.is_staff:
+        return redirect('Corrugation:contact_support')
     purchase_orders = PurchaseOrder.objects.filter(
         po_given_by=po_given_by,
         active=True
@@ -577,6 +585,8 @@ def add_purchase_order_detail(request, po_given_by):
 
 @login_required
 def purchase_order_detail_archive(request, po_given_by):
+    if not request.user.is_staff:
+        return redirect('Corrugation:contact_support')
     purchase_orders = PurchaseOrder.objects.filter(
         po_given_by=po_given_by,
         active=False
@@ -609,6 +619,8 @@ def purchase_order_detail_archive(request, po_given_by):
 
 @login_required
 def delete_purchase_order(request, pk):
+    if not request.user.is_staff:
+        return redirect('Corrugation:contact_support')
     if request.method == 'POST':
         po = get_object_or_404(PurchaseOrder, pk=pk)
         po.active = False
@@ -619,6 +631,8 @@ def delete_purchase_order(request, pk):
 
 @login_required
 def restore_purchase_order(request, pk):
+    if not request.user.is_staff:
+        return redirect('Corrugation:contact_support')
     if request.method == 'POST':
         po = get_object_or_404(PurchaseOrder, pk=pk)
         po.active = True
