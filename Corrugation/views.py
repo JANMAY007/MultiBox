@@ -222,7 +222,6 @@ def upload_bulk_reels(request):
             file = request.FILES['reel_file']
             try:
                 df = pd.read_excel(file)
-                # Define expected columns
                 expected_columns = ['Reel Number', 'BF', 'GSM', 'Size', 'Weight']
                 if list(df.columns) != expected_columns:
                     return JsonResponse({'error': 'Invalid file format'}, status=400)
