@@ -116,7 +116,7 @@ class Product(models.Model):
     objects = models.manager
 
     def __str__(self):
-        return f'{self.product_name}'
+        return f'{self.product_name} - {self.tenant.name}'
 
 
 class Partition(models.Model):

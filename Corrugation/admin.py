@@ -1,5 +1,4 @@
 from django.contrib import admin
-from .forms import PurchaseOrderForm
 from .models import (Tenant, TenantEmployees, PaperReels, Product, Partition,
                      PurchaseOrder, Dispatch, Program, Production, ProductionReels,
                      Stock, TenantGeneralInfo, TenantPaymentInfo)
@@ -38,13 +37,7 @@ class DispatchInline(admin.StackedInline):
 
 
 class PurchaseOrderAdmin(admin.ModelAdmin):
-    form = PurchaseOrderForm
     inlines = [DispatchInline]
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        form.request = request
-        return form
 
 
 admin.site.register(PurchaseOrder, PurchaseOrderAdmin)
