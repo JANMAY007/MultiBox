@@ -7,8 +7,8 @@ class Tenant(models.Model):
         verbose_name = 'Tenant'
         verbose_name_plural = 'Tenants'
 
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, unique=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
     tenant_logo = models.ImageField(upload_to='tenant_logo/')
     amount_decided = models.FloatField(null=True, blank=True)
@@ -93,8 +93,8 @@ class Product(models.Model):
             models.UniqueConstraint(fields=['tenant', 'product_name'], name='unique_tenant_product_name')
         ]
 
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
     product_name = models.CharField(max_length=100)
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
     box_no = models.CharField(max_length=8, blank=True)
     material_code = models.CharField(max_length=10, blank=True)
     size = models.CharField(max_length=10, blank=True)
@@ -166,30 +166,30 @@ class PurchaseOrder(models.Model):
     objects = models.manager
 
     def save(self, *args, **kwargs):
-        self._meta.get_field('po_given_by').choices = self.get_po_given_by_choices()
+        tenant_name = self.product_name.tenant.name
+        self._meta.get_field('po_given_by').choices = self.get_po_given_by_choices(tenant_name)
         super().save(*args, **kwargs)
 
-    def get_po_given_by_choices(self):
-        tenant = getattr(self, 'tenant', None)
-        if tenant:
-            if tenant.name == 'Shiv Packaging':
-                return [
-                    ('Sweety Industries', 'Sweety Industries'),
-                    ('Sweetco Foods', 'Sweetco Foods'),
-                    ('VR Agro Processors LLP', 'VR Agro Processors LLP'),
-                    ('Lao More Biscuits Pvt Ltd', 'Lao More Biscuits Pvt Ltd'),
-                    ('Makson Pharmaceuticals I Pvt Ltd', 'Makson Pharmaceuticals I Pvt Ltd'),
-                    ('GP Manglani Foods Pvt Ltd', 'GP Manglani Foods Pvt Ltd'),
-                    ('KMM Foods Pvt Ltd', 'KMM Foods Pvt Ltd'),
-                    ('Parle Product Pvt Ltd', 'Parle Product Pvt Ltd'),
-                    ('JRJ Foods Pvt Ltd', 'JRJ Foods Pvt Ltd'),
-                    ('RZ Dholakia', 'RZ Dholakia'),
-                    ('Ishwar Snuff Works', 'Ishwar Snuff Works'),
-                    ('Parag Perfumes', 'Parag Perfumes'),
-                ]
-            else:
-                return []
-        return []
+    @classmethod
+    def get_po_given_by_choices(cls, tenant):
+        choices = {
+            'Shiv Packaging': [
+                ('Sweety Industries', 'Sweety Industries'),
+                ('Sweetco Foods', 'Sweetco Foods'),
+                ('VR Agro Processors LLP', 'VR Agro Processors LLP'),
+                ('Lao More Biscuits Pvt Ltd', 'Lao More Biscuits Pvt Ltd'),
+                ('Makson Pharmaceuticals I Pvt Ltd', 'Makson Pharmaceuticals I Pvt Ltd'),
+                ('GP Manglani Foods Pvt Ltd', 'GP Manglani Foods Pvt Ltd'),
+                ('KMM Foods Pvt Ltd', 'KMM Foods Pvt Ltd'),
+                ('Parle Product Pvt Ltd', 'Parle Product Pvt Ltd'),
+                ('JRJ Foods Pvt Ltd', 'JRJ Foods Pvt Ltd'),
+                ('RZ Dholakia', 'RZ Dholakia'),
+                ('Ishwar Snuff Works', 'Ishwar Snuff Works'),
+                ('Parag Perfumes', 'Parag Perfumes'),
+            ],
+            # Add more tenants and their choices as needed
+        }
+        return choices.get(tenant.name, [])
 
     def __str__(self):
         return f'{self.product_name} - {self.po_date} - {self.po_number}'

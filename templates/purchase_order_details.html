@@ -12,7 +12,7 @@
             </div>
         {% endfor %}
         <script>
-            setTimeout(function() {
+            setTimeout(function () {
                 bootstrap.Alert.getOrCreateInstance(document.querySelector(".alert")).close();
             }, 2500)
         </script>
@@ -118,41 +118,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal fade" id="dispatchModal" tabindex="-1" aria-labelledby="dispatchModalLabel"
-                             aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <form method="post" action="{% url 'Corrugation:add_dispatch' %}">
-                                        {% csrf_token %}
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="dispatchModalLabel">Add Dispatch Details</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <input type="hidden" name="pk" value="{{ purchase_order.pk }}">
-                                            <div class="mb-3">
-                                                <label for="dispatch_date" class="form-label">Dispatch Date</label>
-                                                <input type="date" class="form-control" id="dispatch_date"
-                                                       name="dispatch_date" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="dispatch_quantity" class="form-label">Dispatch
-                                                    Quantity</label>
-                                                <input type="number" class="form-control" id="dispatch_quantity"
-                                                       name="dispatch_quantity" required>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                                Close
-                                            </button>
-                                            <button type="submit" class="btn btn-primary">Save Dispatch</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
                         <div class="card-body">
                             {% for dispatch in purchase_order.dispatches %}
                                 <div class="row align-items-center no-gutters">
@@ -170,6 +135,41 @@
                     </div><!-- End: Card Warning -->
                 </div>
             </div><!-- End: Basic Card -->
+            <div class="modal fade" id="dispatchModal" tabindex="-1" aria-labelledby="dispatchModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" action="{% url 'Corrugation:add_dispatch' %}">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="dispatchModalLabel">Add Dispatch Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="pk" value="{{ purchase_order.pk }}">
+                                <div class="mb-3">
+                                    <label for="dispatch_date" class="form-label">Dispatch Date</label>
+                                    <input type="date" class="form-control" id="dispatch_date"
+                                           name="dispatch_date" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="dispatch_quantity" class="form-label">Dispatch
+                                        Quantity</label>
+                                    <input type="number" class="form-control" id="dispatch_quantity"
+                                           name="dispatch_quantity" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    Close
+                                </button>
+                                <button type="submit" class="btn btn-primary">Save Dispatch</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
     </div>
 

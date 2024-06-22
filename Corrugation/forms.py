@@ -9,9 +9,10 @@ class PurchaseOrderForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        tenant = self.instance.tenant
-        if tenant:
-            if tenant.name == 'Shiv Packaging':
+        product = self.initial.get('product_name') or self.instance.product_name
+        if product:
+            tenant_name = product.tenant.name
+            if tenant_name == 'Shiv Packaging':
                 self.fields['po_given_by'].choices = [
                     ('Sweety Industries', 'Sweety Industries'),
                     ('Sweetco Foods', 'Sweetco Foods'),
@@ -30,3 +31,10 @@ class PurchaseOrderForm(forms.ModelForm):
                 self.fields['po_given_by'].choices = []
         else:
             self.fields['po_given_by'].choices = []
+
+    def clean_po_given_by(self):
+        tenant = self.cleaned_data.get('product_name').tenant.name
+        po_given_by = self.cleaned_data.get('po_given_by')
+        if tenant == 'Shiv Packaging' and not any(po_given_by == choice[0] for choice in self.fields['po_given_by'].choices):
+            raise forms.ValidationError("Invalid choice for po_given_by.")
+        return po_given_by
