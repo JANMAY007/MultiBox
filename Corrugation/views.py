@@ -96,14 +96,14 @@ def stocks(request):
         stock_quantity = request.POST.get('stock_quantity')
         try:
             stock_quantity = int(stock_quantity)
-            product = Product.objects.get(product_name=product_name)
+            product = Product.objects.get(tenant=tenant, product_name=product_name)
             stock, created = Stock.objects.get_or_create(product=product)
             stock.stock_quantity = stock_quantity
             stock.save()
         except (ValueError, TypeError):
             pass
         messages.info(request, 'Stock updated successfully.')
-        return redirect('Corrugation:index')
+        return redirect('Corrugation:stocks')
     context = {
         'products': Product.objects.filter(tenant=tenant).values('product_name'),
         'stocks': Stock.objects.filter(product__tenant=tenant).values('product__product_name', 'stock_quantity', 'pk'),
@@ -660,7 +660,7 @@ def add_dispatch(request):
         except django.db.utils.IntegrityError:
             pass
         messages.success(request, 'Dispatch added successfully.')
-        return redirect('Corrugation:purchase_order')
+        return redirect('Corrugation:add_purchase_order_detail', po_given_by=po.po_given_by)
     return redirect('Corrugation:purchase_order')
 
 

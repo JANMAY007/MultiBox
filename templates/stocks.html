@@ -10,7 +10,7 @@
             </div>
         {% endfor %}
         <script>
-            setTimeout(function() {
+            setTimeout(function () {
                 bootstrap.Alert.getOrCreateInstance(document.querySelector(".alert")).close();
             }, 2500)
         </script>
@@ -37,14 +37,12 @@
                         </div>
                         <button type="button" class="btn btn-outline-primary btn-sm mt-2" data-bs-toggle="modal"
                                 data-bs-target="#editModal{{ forloop.counter }}">
-                            Edit Quantity
+                            Edit
                         </button>
-                        <form method="POST" action="{% url 'Corrugation:delete_stock' stock.pk %}" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger btn-sm mt-2 ms-2">
-                                Delete
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-outline-danger btn-sm mt-2" data-bs-toggle="modal"
+                                data-bs-target="#deleteModal{{ forloop.counter }}">
+                            Delete
+                        </button>
                     </div>
                 </div>
             </div>
@@ -58,7 +56,7 @@
                                 for {{ stock.product__product_name }}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form method="POST" action="{% url 'Corrugation:index' %}">
+                        <form method="POST" action="{% url 'Corrugation:stocks' %}">
                             {% csrf_token %}
                             <div class="modal-body">
                                 <div class="mb-3">
@@ -77,6 +75,33 @@
                     </div>
                 </div>
             </div>
+            <div class="modal fade" id="deleteModal{{ forloop.counter }}" tabindex="-1"
+                 aria-labelledby="deleteModalLabel{{ forloop.counter }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel{{ forloop.counter }}">Edit Quantity
+                                for {{ stock.product__product_name }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure, to delete stock?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <form method="POST" action="{% url 'Corrugation:delete_stock' stock.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    Delete
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" aria-label="Close">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         {% endfor %}
         <!-- Modal for adding new stock -->
         <div class="modal fade" id="addStockModal" tabindex="-1" aria-labelledby="addStockModalLabel"

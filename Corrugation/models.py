@@ -187,9 +187,16 @@ class PurchaseOrder(models.Model):
                 ('Ishwar Snuff Works', 'Ishwar Snuff Works'),
                 ('Parag Perfumes', 'Parag Perfumes'),
             ],
+            'Sample': [
+                ('Sample 1', 'Sample 1'),
+                ('Sample 2', 'Sample 2'),
+                ('Sample 3', 'Sample 3'),
+                ('Sample 4', 'Sample 4'),
+                ('Sample 5', 'Sample 5'),
+            ],
             # Add more tenants and their choices as needed
         }
-        return choices.get(tenant.name, [])
+        return choices.get(tenant, [])
 
     def __str__(self):
         return f'{self.product_name} - {self.po_date} - {self.po_number}'

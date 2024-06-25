@@ -27,7 +27,7 @@
             <!-- Start: Basic Card -->
             <div class="card shadow mb-4" data-product-name="{{ purchase_order.product_name }}">
                 <div class="card-header py-3">
-                    <h6 class="text-primary m-0 fw-bold">Product name - {{ purchase_order.product_name }}<span
+                    <h6 class="text-primary m-0 fw-bold">Product name - {{ purchase_order.product_name.product_name }}<span
                             class="float-end">{{ purchase_order.po_date }}</span></h6>
                 </div>
                 <div class="card-body">
@@ -109,7 +109,7 @@
                                 </div>
                                 <div class="col-auto">
                                     <button type="button" class="btn btn-primary btn-icon-split" data-bs-toggle="modal"
-                                            data-bs-target="#dispatchModal">
+                                            data-bs-target="#dispatchModal-{{ purchase_order.id }}">
                                     <span class="text-white-50 icon">
                                         <i class="fas fa-truck-loading"></i>
                                     </span>
@@ -135,14 +135,14 @@
                     </div><!-- End: Card Warning -->
                 </div>
             </div><!-- End: Basic Card -->
-            <div class="modal fade" id="dispatchModal" tabindex="-1" aria-labelledby="dispatchModalLabel"
+            <div class="modal fade" id="dispatchModal-{{ purchase_order.id }}" tabindex="-1" aria-labelledby="dispatchModalLabel-{{ purchase_order.id }}"
                  aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <form method="post" action="{% url 'Corrugation:add_dispatch' %}">
                             {% csrf_token %}
                             <div class="modal-header">
-                                <h5 class="modal-title" id="dispatchModalLabel">Add Dispatch Details</h5>
+                                <h5 class="modal-title" id="dispatchModalLabel-{{ purchase_order.id }}">Add Dispatch Details</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                             </div>
