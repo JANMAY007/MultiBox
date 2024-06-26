@@ -18,6 +18,10 @@ import django.db.utils
 import pandas as pd
 
 
+def offline(request):
+    return render(request, 'offline.html')
+
+
 @login_required
 def register_tenant(request):
     if request.method == 'POST':

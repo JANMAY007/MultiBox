@@ -1,0 +1,20 @@
+{
+  "short_name": "MultiBox",
+  "name": "MultiBox",
+  "icons": [
+    {
+      "src": "/static/logo/small_logo.png",
+      "type": "image/png",
+      "sizes": "256x256",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/logo/small_logo.png",
+      "type": "image/png",
+      "sizes": "256x256",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "fullscreen"
+}
