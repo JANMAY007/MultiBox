@@ -909,13 +909,8 @@ def production_archive(request):
 def update_production_quantity(request):
     if request.method == 'POST':
         production_object = get_object_or_404(Production, pk=request.POST.get('pk'))
-        product = Product.objects.get(product_name=production_object.product.product_name)
-        stock, created = Stock.objects.get_or_create(product=product)
-        stock.stock_quantity -= int(production_object.production_quantity)
         production_object.production_quantity = request.POST.get('production_quantity')
         production_object.save()
-        stock.stock_quantity += int(production_object.production_quantity)
-        stock.save()
         messages.info(request, 'Production quantity updated successfully.')
         return redirect('Corrugation:production')
     return redirect('Corrugation:production')
