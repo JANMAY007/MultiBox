@@ -41,11 +41,16 @@ class TenantGeneralInfo(models.Model):
         verbose_name_plural = 'Tenant General Infos'
 
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
-    total_storage = models.PositiveIntegerField()
-    delete_before_days = models.PositiveSmallIntegerField()
+    total_storage = models.PositiveIntegerField(default=50)
+    reels_delete_before_days = models.PositiveSmallIntegerField(default=15)
+    program_delete_before_days = models.PositiveSmallIntegerField(default=5)
+    production_delete_before_days = models.PositiveSmallIntegerField(default=5)
+    purchase_order_delete_before_days = models.PositiveSmallIntegerField(default=15)
     database_copy = models.BooleanField(default=False)
     monthly_report = models.BooleanField(default=False)
     premium = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     object = models.manager
 
     def __str__(self):
@@ -59,6 +64,10 @@ class TenantPaymentInfo(models.Model):
 
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
     payment_datetime = models.DateTimeField()
+    payment_amount = models.FloatField()
+    payment_notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     object = models.manager
 
     def __str__(self):
@@ -96,21 +105,21 @@ class Product(models.Model):
 
     product_name = models.CharField(max_length=100)
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
-    box_no = models.CharField(max_length=8, blank=True)
-    material_code = models.CharField(max_length=10, blank=True)
-    size = models.CharField(max_length=10, blank=True)
-    inner_length = models.PositiveSmallIntegerField(blank=True)
-    inner_breadth = models.PositiveSmallIntegerField(blank=True)
-    inner_depth = models.PositiveSmallIntegerField(blank=True)
-    outer_length = models.PositiveSmallIntegerField(blank=True)
-    outer_breadth = models.PositiveSmallIntegerField(blank=True)
-    outer_depth = models.PositiveSmallIntegerField(blank=True)
-    color = models.CharField(max_length=20, blank=True)
-    weight = models.CharField(max_length=7, blank=True)
-    ply = models.CharField(max_length=15, blank=True)
-    gsm = models.CharField(max_length=20, blank=True)
-    bf = models.CharField(max_length=5, blank=True)
-    cs = models.CharField(max_length=5, blank=True)
+    box_no = models.CharField(max_length=8, null=True, blank=True)
+    material_code = models.CharField(max_length=10, null=True, blank=True)
+    size = models.CharField(max_length=10, null=True, blank=True)
+    inner_length = models.PositiveSmallIntegerField(null=True, blank=True)
+    inner_breadth = models.PositiveSmallIntegerField(null=True, blank=True)
+    inner_depth = models.PositiveSmallIntegerField(null=True, blank=True)
+    outer_length = models.PositiveSmallIntegerField(null=True, blank=True)
+    outer_breadth = models.PositiveSmallIntegerField(null=True, blank=True)
+    outer_depth = models.PositiveSmallIntegerField(null=True, blank=True)
+    color = models.CharField(max_length=20, null=True, blank=True)
+    weight = models.CharField(max_length=7, null=True, blank=True)
+    ply = models.CharField(max_length=15, null=True, blank=True)
+    gsm = models.CharField(max_length=20, null=True, blank=True)
+    bf = models.CharField(max_length=5, null=True, blank=True)
+    cs = models.CharField(max_length=5, null=True, blank=True)
     archive = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -150,13 +159,27 @@ class Partition(models.Model):
         return f'{self.product_name} - {self.partition_type}'
 
 
+class TenantBuyers(models.Model):
+    class Meta:
+        verbose_name = 'Tenant Buyer'
+        verbose_name_plural = 'Tenant Buyers'
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+    buyer_name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    object = models.manager
+
+    def __str__(self):
+        return f'{self.tenant} - {self.buyer_name}'
+
+
 class PurchaseOrder(models.Model):
     class Meta:
         verbose_name = 'Purchase Order'
         verbose_name_plural = 'Purchase Orders'
 
     product_name = models.ForeignKey(Product, on_delete=models.CASCADE)
-    po_given_by = models.CharField(max_length=50)
+    po_given_by = models.CharField(max_length=100)
     po_number = models.CharField(max_length=10)
     po_date = models.DateField()
     rate = models.FloatField()
@@ -165,39 +188,6 @@ class PurchaseOrder(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
-
-    def save(self, *args, **kwargs):
-        tenant_name = self.product_name.tenant.name
-        self._meta.get_field('po_given_by').choices = self.get_po_given_by_choices(tenant_name)
-        super().save(*args, **kwargs)
-
-    @classmethod
-    def get_po_given_by_choices(cls, tenant):
-        choices = {
-            'Shiv Packaging': [
-                ('Sweety Industries', 'Sweety Industries'),
-                ('Sweetco Foods', 'Sweetco Foods'),
-                ('VR Agro Processors LLP', 'VR Agro Processors LLP'),
-                ('Lao More Biscuits Pvt Ltd', 'Lao More Biscuits Pvt Ltd'),
-                ('Makson Pharmaceuticals I Pvt Ltd', 'Makson Pharmaceuticals I Pvt Ltd'),
-                ('GP Manglani Foods Pvt Ltd', 'GP Manglani Foods Pvt Ltd'),
-                ('KMM Foods Pvt Ltd', 'KMM Foods Pvt Ltd'),
-                ('Parle Product Pvt Ltd', 'Parle Product Pvt Ltd'),
-                ('JRJ Foods Pvt Ltd', 'JRJ Foods Pvt Ltd'),
-                ('RZ Dholakia', 'RZ Dholakia'),
-                ('Ishwar Snuff Works', 'Ishwar Snuff Works'),
-                ('Parag Perfumes', 'Parag Perfumes'),
-            ],
-            'Sample': [
-                ('Sample 1', 'Sample 1'),
-                ('Sample 2', 'Sample 2'),
-                ('Sample 3', 'Sample 3'),
-                ('Sample 4', 'Sample 4'),
-                ('Sample 5', 'Sample 5'),
-            ],
-            # Add more tenants and their choices as needed
-        }
-        return choices.get(tenant, [])
 
     def __str__(self):
         return f'{self.product_name} - {self.po_date} - {self.po_number}'

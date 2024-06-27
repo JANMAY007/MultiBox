@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from .models import (Tenant, TenantEmployees, PaperReels, Product, Partition,
                      PurchaseOrder, Dispatch, Stock, Program, Production,
-                     ProductionReels)
+                     ProductionReels, TenantBuyers)
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -507,7 +507,7 @@ def purchase_order(request):
     context = {
         'purchase_order_list': po_active_count_by_given_by,
         'products': Product.objects.filter(tenant=tenant).values('product_name', 'pk'),
-        'po_given_by_choices': PurchaseOrder.get_po_given_by_choices(tenant),
+        'po_given_by_choices': TenantBuyers.objects.filter(tenant=tenant).values('buyer_name'),
     }
     return render(request, 'purchase_order.html', context)
 
