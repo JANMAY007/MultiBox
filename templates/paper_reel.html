@@ -125,7 +125,7 @@
                 }
             });
         });
-            $(document).ready(function () {
+        $(document).ready(function () {
             $('#bulkReelForm').on('submit', function (e) {
                 e.preventDefault();
                 var formData = new FormData(this);
@@ -213,6 +213,11 @@
                             <div class="modal-body">
                                 <form method="post" action="{% url 'Corrugation:update_reel' reel.id %}">
                                     {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="supplier" class="form-label">Supplier</label>
+                                        <input type="text" class="form-control" id="supplier" name="supplier" 
+                                               value="{{ reel.supplier }}" required>
+                                    </div>
                                     <div class="mb-3">
                                         <label for="reel_number" class="form-label">Reel Number</label>
                                         <input type="text" class="form-control" id="reel_number"
@@ -369,6 +374,10 @@
                     <form method="post">
                         {% csrf_token %}
                         <div class="mb-3">
+                            <label for="supplier" class="form-label">Supplier</label>
+                            <input type="text" class="form-control" id="supplier" name="supplier" required>
+                        </div>
+                        <div class="mb-3">
                             <label for="reel_number" class="form-label">Reel Number</label>
                             <input type="text" class="form-control" id="reel_number" name="reel_number" required>
                         </div>
@@ -406,6 +415,10 @@
                 <div class="modal-body">
                     <form id="bulkReelForm" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="supplier" class="form-label">Supplier</label>
+                            <input type="text" class="form-control" id="supplier" name="supplier" required>
+                        </div>
                         <div class="mb-3">
                             <label for="reel_file" class="form-label">Upload Excel File</label>
                             <input type="file" class="form-control" id="reel_file" name="reel_file" accept=".xlsx, .xls"

@@ -71,6 +71,7 @@ class PaperReels(models.Model):
         verbose_name_plural = 'Paper Reels'
 
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+    supplier = models.CharField(max_length=50)
     reel_number = models.CharField(max_length=15)
     bf = models.PositiveSmallIntegerField(default=18)
     gsm = models.PositiveSmallIntegerField(default=120)

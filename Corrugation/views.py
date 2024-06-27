@@ -176,13 +176,12 @@ def paper_reels(request):
         gsm = request.POST.get('gsm')
         size = request.POST.get('size')
         weight = request.POST.get('weight')
-
+        supplier = request.POST.get('supplier')
         try:
             bf = int(bf)
             gsm = int(gsm)
             size = float(size)
             weight = int(weight)
-
             PaperReels.objects.create(
                 reel_number=reel_number,
                 bf=bf,
@@ -190,6 +189,7 @@ def paper_reels(request):
                 size=size,
                 weight=weight,
                 tenant=tenant,
+                supplier=supplier,
             )
             messages.success(request, 'Paper reel added successfully.')
             return redirect('Corrugation:paper_reels')
@@ -233,7 +233,7 @@ def upload_bulk_reels(request):
                 success_count = 0
                 error_count = 0
                 errors = []
-
+                supplier = request.POST.get('supplier')
                 for index, row in df.iterrows():
                     try:
                         PaperReels.objects.create(
@@ -242,7 +242,8 @@ def upload_bulk_reels(request):
                             bf=row['BF'],
                             gsm=row['GSM'],
                             size=row['Size'],
-                            weight=row['Weight']
+                            weight=row['Weight'],
+                            supplier=supplier,
                         )
                         success_count += 1
                     except Exception as e:
