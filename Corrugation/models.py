@@ -20,6 +20,27 @@ class Tenant(models.Model):
         return f'{self.name} - {self.amount_decided}'
 
 
+class TenantAddress(models.Model):
+    class Meta:
+        verbose_name = 'Tenant Address'
+        verbose_name_plural = 'Tenant Addresses'
+
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+    plot_no = models.CharField(max_length=20)
+    address_line_1 = models.CharField(max_length=150)
+    address_line_2 = models.CharField(max_length=150)
+    city = models.CharField(max_length=50)
+    state = models.CharField(max_length=50)
+    pincode = models.CharField(max_length=6)
+    country = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    object = models.manager
+
+    def __str__(self):
+        return f'{self.tenant.name} - {self.city}'
+
+
 class TenantEmployees(models.Model):
     class Meta:
         verbose_name = 'Tenant Employee'
