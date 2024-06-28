@@ -38,7 +38,7 @@ def register_tenant(request):
         )
         # Send email
         subject = 'Tenant Registration MultiBox'
-        html_message = render_to_string('tenant_registration_email.html', {'user': user})
+        html_message = render_to_string('Corrugation/tenant_registration_email.html', {'user': user})
         plain_message = strip_tags(html_message)
         from_email = settings.DEFAULT_FROM_EMAIL
         to = user.email
@@ -47,7 +47,7 @@ def register_tenant(request):
         messages.success(request, 'Tenant registered successfully.')
         messages.info(request, 'An email has been sent to you for the registration details.')
         return redirect('Corrugation:register_tenant')
-    return render(request, 'register_tenant.html')
+    return render(request, 'Corrugation/register_tenant.html')
 
 
 def get_tenant_for_user(request):
@@ -69,7 +69,7 @@ def get_tenant_for_user(request):
 
 @login_required
 def inactive_tenant_page(request):
-    return render(request, 'inactive_tenant.html')
+    return render(request, 'Corrugation/inactive_tenant.html')
 
 
 @login_required
@@ -112,7 +112,7 @@ def stocks(request):
         'products': Product.objects.filter(tenant=tenant).values('product_name'),
         'stocks': Stock.objects.filter(product__tenant=tenant).values('product__product_name', 'stock_quantity', 'pk'),
     }
-    return render(request, 'stocks.html', context)
+    return render(request, 'Corrugation/stocks.html', context)
 
 
 @login_required
@@ -122,7 +122,7 @@ def delete_stock(request, pk):
         stock.delete()
         messages.error(request, 'Stock item cleared successfully.')
         return redirect(reverse('Corrugation:stocks'))
-    return render(request, 'stocks.html', {'stock': stock})
+    return render(request, 'Corrugation/stocks.html', {'stock': stock})
 
 
 @login_required
@@ -195,7 +195,7 @@ def paper_reels(request):
             return redirect('Corrugation:paper_reels')
         except (ValueError, TypeError):
             messages.error(request, 'Invalid input. Please enter valid values.')
-            return render(request, 'paper_reel.html')
+            return render(request, 'Corrugation/paper_reel.html')
 
     reels_list = PaperReels.objects.filter(tenant=tenant).order_by('-created_at')
     paginator = Paginator(reels_list, 50)
@@ -212,7 +212,7 @@ def paper_reels(request):
         'used_reels': PaperReels.objects.filter(used=True, tenant=tenant).count(),
         'unused_reels': PaperReels.objects.filter(used=False, tenant=tenant).count(),
     }
-    return render(request, 'paper_reel.html', context)
+    return render(request, 'Corrugation/paper_reel.html', context)
 
 
 @login_required
@@ -368,7 +368,7 @@ def add_product(request):
     context = {
         'products': Product.objects.filter(archive=False, tenant=tenant).values('product_name', 'pk'),
     }
-    return render(request, 'products.html', context)
+    return render(request, 'Corrugation/products.html', context)
 
 
 @login_required
@@ -381,7 +381,7 @@ def product_archive(request):
     context = {
         'products': products,
     }
-    return render(request, 'products_archive.html', context)
+    return render(request, 'Corrugation/products_archive.html', context)
 
 
 @login_required
@@ -479,7 +479,7 @@ def products_detail(request, pk):
         'product': product,
         'partitions': partitions
     }
-    return render(request, 'product_detail.html', context)
+    return render(request, 'Corrugation/product_detail.html', context)
 
 
 @login_required
@@ -490,7 +490,7 @@ def product_detail_archive(request, pk):
         'product': product,
         'partitions': partitions
     }
-    return render(request, 'product_detail_archive.html', context)
+    return render(request, 'Corrugation/product_detail_archive.html', context)
 
 
 @login_required
@@ -509,7 +509,7 @@ def purchase_order(request):
         'products': Product.objects.filter(tenant=tenant).values('product_name', 'pk'),
         'po_given_by_choices': TenantBuyers.objects.filter(tenant=tenant).values('buyer_name'),
     }
-    return render(request, 'purchase_order.html', context)
+    return render(request, 'Corrugation/purchase_order.html', context)
 
 
 @login_required
@@ -525,7 +525,7 @@ def purchase_order_archive(request):
     context = {
         'purchase_order_list': po_active_count_by_given_by,
     }
-    return render(request, 'purchase_order_archive.html', context)
+    return render(request, 'Corrugation/purchase_order_archive.html', context)
 
 
 @login_required
@@ -584,7 +584,7 @@ def add_purchase_order_detail(request, po_given_by):
     context = {
         'purchase_orders': purchase_orders,
     }
-    return render(request, 'purchase_order_details.html', context)
+    return render(request, 'Corrugation/purchase_order_details.html', context)
 
 
 @login_required
@@ -618,7 +618,7 @@ def purchase_order_detail_archive(request, po_given_by):
     context = {
         'purchase_orders': purchase_orders,
     }
-    return render(request, 'purchase_order_details_archive.html', context)
+    return render(request, 'Corrugation/purchase_order_details_archive.html', context)
 
 
 @login_required
@@ -743,7 +743,7 @@ def daily_program(request):
         'programs': programs_data,
         'products': Product.objects.filter(tenant=tenant).values('product_name'),
     }
-    return render(request, 'program.html', context)
+    return render(request, 'Corrugation/program.html', context)
 
 
 @login_required
@@ -793,7 +793,7 @@ def program_archive(request):
     context = {
         'programs': programs_data,
     }
-    return render(request, 'program_archive.html', context)
+    return render(request, 'Corrugation/program_archive.html', context)
 
 
 @login_required
@@ -877,7 +877,7 @@ def production(request):
         'reels': PaperReels.objects.filter(tenant=tenant).values('reel_number'),
         'productions': production_data,
     }
-    return render(request, 'production.html', context)
+    return render(request, 'Corrugation/production.html', context)
 
 
 @login_required
@@ -902,7 +902,7 @@ def production_archive(request):
     context = {
         'productions': production_data,
     }
-    return render(request, 'production_archive.html', context)
+    return render(request, 'Corrugation/production_archive.html', context)
 
 
 @login_required
