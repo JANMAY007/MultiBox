@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Add Challan
+{% endblock %}
+{% block content %}
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .invoice {
+            background: #fff;
+            padding: 30px;
+            margin: 20px auto;
+            border: 1px solid #eee;
+            max-width: 800px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .invoice-header {
+            margin-bottom: 20px;
+        }
+
+        .invoice-header .logo {
+            max-width: 150px;
+        }
+
+        .invoice-header h2, .invoice-header h4 {
+            margin: 0;
+        }
+
+        .invoice-header .details {
+            text-align: right;
+        }
+
+        .invoice-header .details h2 {
+            color: #B94A00;
+        }
+
+        .invoice-header .details .balance {
+            color: #B94A00;
+        }
+
+        .invoice-details {
+            margin-bottom: 20px;
+        }
+
+        .table thead th {
+            background: #B94A00;
+            color: #fff;
+            border: none;
+        }
+
+        .table tbody td {
+            border: none;
+        }
+
+        .total-row {
+            font-weight: bold;
+        }
+
+        .terms {
+            margin-top: 20px;
+        }
+    </style>
+    <div class="container">
+        <form action="{% url 'Billing:add_challan' %}" method="post">
+        {% csrf_token %}
+            <div class="invoice">
+                <div class="invoice-header d-flex flex-wrap justify-content-between align-items-center">
+                    <div class="col-md-6 p-0">
+                        <img class="logo img-fluid" alt="Tenant Logo" src="{{ tenant_details.tenant_logo.url }}">
+                        <h4>{{ tenant_address.tenant.name }}</h4>
+                        <p>{{ tenant_address.plot_no }}
+                            <br>{{ tenant_address.address_line_1 }}
+                            <br>{{ tenant_address.address_line_2 }}
+                            <br>{{ tenant_address.city }} - {{ tenant_address.pincode }}
+                        </p>
+                    </div>
+                    <div class="details col-md-6 text-md-right text-left mt-md-0">
+                        <div class="row">
+                            <div class="col col-md-6">
+                                <label for="challan_no" class="form-label">Challan Number</label>
+                                <input type="text" class="form-control" id="challan_no" name="challan_no" required>
+                            </div>
+                            <div class="col col-md-6">
+                                <label for="challan_date" class="form-label">Challan Date</label>
+                                <input type="date" class="form-control" id="challan_date" name="challan_date" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col col-md-6">
+                                <label for="order_no" class="form-label">Order Number</label>
+                                <input type="text" class="form-control" id="order_no" name="order_no" required>
+                            </div>
+                            <div class="col col-md-6">
+                                <label for="order_date" class="form-label">Order Date</label>
+                                <input type="date" class="form-control" id="order_date" name="order_date" required>
+                            </div>
+                        </div>
+                        <div class="row mt-1">
+                            <div class="col">
+                                <label for="vehicle_no" class="form-label">Vehicle Number</label>
+                            </div>
+                            <div class="col">
+                                <input type="text" class="form-control" name="vehicle_no" id="vehicle_no" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="invoice-details row">
+                    <div class="col-md-6">
+                        <h5>Bill To</h5>
+                        <label for="billing_to"></label>
+                        <textarea name="billing_to" id="billing_to" cols="30" rows="4"></textarea>
+                    </div>
+                    <div class="col-md-6 text-md-right text-left mt-3 mt-md-0">
+                        <h5>Ship To</h5>
+                        <label for="shipping_to"></label>
+                        <textarea name="shipping_to" id="shipping_to" cols="30" rows="4"></textarea>
+                    </div>
+                </div>
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Remarks</th>
+                        <th>Bundles</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="productTable">
+                    <tr>
+                        <td>1</td>
+                        <td>
+                            <select class="form-control" name="product[]">
+                                {% for purchase_order in purchase_orders %}
+                                    <option value="{{ purchase_order.po_number }}">
+                                        {{ purchase_order.po_number }} -> {{ purchase_order.product_name__product_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td><input type="number" class="form-control" name="quantity[]" required></td>
+                        <td><input type="text" class="form-control" name="remarks[]"></td>
+                        <td>
+                            <div class="bundle-container">
+                                <div class="bundle row">
+                                    <div class="col">
+                                        <label>Size:</label>
+                                        <input type="text" class="form-control" name="bundle_size[]">
+                                    </div>
+                                    <div class="col">
+                                        <label>Quantity:</label>
+                                        <input type="number" class="form-control" name="bundle_quantity[]">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm add-bundle">Add Bundle</button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm remove-row">Remove</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-success" id="addRow">Add Product</button>
+
+                <div class="terms">
+                    <p><strong>Terms & Conditions</strong><br>All payments must be made in full before the commencement
+                        of any design work.</p>
+                </div>
+                <label for="challan_note">Note:</label>
+                <textarea name="challan_note" id="challan_note" cols="30" rows="4"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('addRow').addEventListener('click', function () {
+            let table = document.getElementById('productTable');
+            let rowCount = table.rows.length;
+            if (rowCount >= 3) return; // Limit to 3 products
+
+            let row = table.insertRow(rowCount);
+            row.innerHTML = `<td>${rowCount + 1}</td>
+                             <td>
+                                 <select class="form-control" name="product[]">
+                                     {% for purchase_order in purchase_orders %}
+                                         <option value="{{ purchase_order.po_number }}">
+                                            {{ purchase_order.po_number }} -> {{ purchase_order.product_name__product_name }}
+                                         </option>
+                                     {% endfor %}
+                                 </select>
+                             </td>
+                             <td><input type="number" class="form-control" name="quantity[]" required></td>
+                             <td><input type="text" class="form-control" name="remarks[]"></td>
+                             <td>
+                                 <div class="bundle-container">
+                                     <div class="bundle row">
+                                         <div class="col">
+                                             <label>Size:</label>
+                                             <input type="text" class="form-control" name="bundle_size[]">
+                                         </div>
+                                         <div class="col">
+                                             <label>Quantity:</label>
+                                             <input type="number" class="form-control" name="bundle_quantity[]">
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <button type="button" class="btn btn-primary btn-sm add-bundle">Add Bundle</button>
+                             </td>
+                             <td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>`;
+
+            attachRemoveRowEvent(row.querySelector('.remove-row'));
+            attachAddBundleEvent(row.querySelector('.add-bundle'));
+        });
+
+        function attachRemoveRowEvent(button) {
+            button.addEventListener('click', function () {
+                let row = this.parentNode.parentNode;
+                row.parentNode.removeChild(row);
+                updateRowNumbers();
+            });
+        }
+
+        function attachAddBundleEvent(button) {
+            button.addEventListener('click', function () {
+                let bundleContainer = this.previousElementSibling;
+                let bundleCount = bundleContainer.getElementsByClassName('bundle').length;
+                if (bundleCount >= 3) return; // Limit to 3 bundles
+
+                let newBundle = document.createElement('div');
+                newBundle.className = 'bundle row';
+                newBundle.innerHTML = `<div class="col">
+                                           <label>Size:</label>
+                                           <input type="text" class="form-control" name="bundle_size[]">
+                                       </div>
+                                       <div class="col">
+                                           <label>Quantity:</label>
+                                           <input type="number" class="form-control" name="bundle_quantity[]">
+                                       </div>`;
+
+                bundleContainer.appendChild(newBundle);
+            });
+        }
+
+        function updateRowNumbers() {
+            let table = document.getElementById('productTable');
+            for (let i = 0; i < table.rows.length; i++) {
+                table.rows[i].cells[0].innerText = i + 1;
+            }
+        }
+
+        document.querySelectorAll('.remove-row').forEach(button => attachRemoveRowEvent(button));
+        document.querySelectorAll('.add-bundle').forEach(button => attachAddBundleEvent(button));
+    </script>
+{% endblock %}

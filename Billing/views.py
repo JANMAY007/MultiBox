@@ -12,7 +12,11 @@ def challans(request):
         return redirect('Corrugation:register_tenant')
     tenant_challans = Challan.objects.filter(tenant=tenant)
     challan_items = ChallanItem.objects.filter(challan__in=tenant_challans)
+    tenant_details = Tenant.objects.get(name=tenant.name)
+    tenant_address = TenantAddress.objects.get(tenant__name=tenant.name)
     context = {
+        'tenant_details': tenant_details,
+        'tenant_address': tenant_address,
         'challans': tenant_challans,
         'challan_items': challan_items
     }
@@ -24,34 +28,61 @@ def add_challan(request):
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Corrugation:register_tenant')
+
     if request.method == 'POST':
-        challan = Challan()
-        challan.tenant = tenant
-        challan.order_no = request.POST.get('order_no')
-        challan.order_date = request.POST.get('order_date')
-        challan.challan_no = request.POST.get('challan_no')
-        challan.challan_date = request.POST.get('challan_date')
-        challan.buyer_name = request.POST.get('buyer_name')
-        challan.vehicle_no = request.POST.get('vehicle_no')
-        challan.challan_note = request.POST.get('challan_note')
+        challan = Challan(
+            tenant=tenant,
+            order_no=request.POST.get('order_no'),
+            order_date=request.POST.get('order_date'),
+            challan_no=request.POST.get('challan_no'),
+            challan_date=request.POST.get('challan_date'),
+            billing_to=request.POST.get('billing_to'),
+            shipping_to=request.POST.get('shipping_to'),
+            vehicle_no=request.POST.get('vehicle_no'),
+            challan_note=request.POST.get('challan_note')
+        )
         challan.save()
-        for item in request.POST.get('items'):
-            challan_item = ChallanItem()
-            challan_item.challan = challan
-            challan_item.challan_po = item.get('challan_po')
-            challan_item.bundles = item.get('bundles')
-            challan_item.quantity = item.get('quantity')
-            challan_item.remarks = item.get('remarks')
+
+        products = request.POST.getlist('product[]')
+        quantities = request.POST.getlist('quantity[]')
+        remarks = request.POST.getlist('remarks[]')
+        bundle_sizes = request.POST.getlist('bundle_size[]')
+        bundle_quantities = request.POST.getlist('bundle_quantity[]')
+
+        bundle_index = 0
+
+        for i in range(len(products)):
+            challan_item = ChallanItem(
+                challan=challan,
+                challan_po=PurchaseOrder.objects.get(po_number=products[i]),
+                quantity=quantities[i],
+                remarks=remarks[i]
+            )
+
+            bundles = []
+            while bundle_index < len(bundle_sizes) and bundle_sizes[bundle_index]:
+                bundles.append({
+                    'size': bundle_sizes[bundle_index],
+                    'quantity': bundle_quantities[bundle_index]
+                })
+                bundle_index += 1
+                if bundle_index % 3 == 0:
+                    break
+
+            challan_item.bundles = bundles
             challan_item.save()
+
         messages.success(request, 'Challan added successfully')
         return redirect('Billing:challans')
-    tenant_logo = Tenant.objects.get(name=tenant).logo
-    tenant_address = TenantAddress.objects.get(tenant=tenant)
-    purchase_orders = PurchaseOrder.objects.filter(tenant=tenant).values(
+
+    tenant_details = Tenant.objects.get(name=tenant.name)
+    tenant_address = TenantAddress.objects.get(tenant__name=tenant.name)
+    purchase_orders = PurchaseOrder.objects.filter(product_name__tenant=tenant).values(
         'id', 'po_number', 'product_name__product_name'
     )
+
     context = {
-        'tenant_logo': tenant_logo,
+        'tenant_details': tenant_details,
         'tenant_address': tenant_address,
         'purchase_orders': purchase_orders
     }

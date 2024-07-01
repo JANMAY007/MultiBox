@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (Tenant, TenantEmployees, PaperReels, Product, Partition,
                      PurchaseOrder, Dispatch, Program, Production, ProductionReels,
-                     Stock, TenantGeneralInfo, TenantPaymentInfo)
+                     Stock, TenantGeneralInfo, TenantPaymentInfo, TenantAddress, TenantBuyers)
 
 
 admin.site.register(PaperReels)
@@ -47,3 +47,5 @@ admin.site.register(ProductionReels)
 admin.site.register(Stock)
 admin.site.register(TenantGeneralInfo)
 admin.site.register(TenantPaymentInfo)
+admin.site.register(TenantAddress)
+admin.site.register(TenantBuyers)

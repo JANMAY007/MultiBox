@@ -12,9 +12,10 @@ class Challan(models.Model):
     order_date = models.DateField()
     challan_no = models.CharField(max_length=20)
     challan_date = models.DateField()
-    buyer_name = models.CharField(max_length=255)
+    billing_to = models.TextField()
+    shipping_to = models.TextField()
     vehicle_no = models.CharField(max_length=15)
-    challan_note = models.TextField()
+    challan_note = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     object = models.manager

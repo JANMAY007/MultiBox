@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Corrugation.apps.CorrugationConfig',
+    'Billing.apps.BillingConfig',
     'allauth_ui',
     'allauth',
     'allauth.account',

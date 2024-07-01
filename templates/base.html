@@ -207,6 +207,20 @@
                         </div>
                     </div>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#challanDropdown"
+                       aria-expanded="true" aria-controls="challanDropdown">
+                        <i class="fas fa-receipt"></i>
+                        <span>Challan</span>
+                    </a>
+                    <div id="challanDropdown" class="collapse" aria-labelledby="headingThree"
+                         data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" href="{% url 'Billing:add_challan' %}">Challan</a>
+                            <a class="collapse-item" href="#">Archive</a>
+                        </div>
+                    </div>
+                </li>
             </ul>
             <div class="text-center d-none d-md-inline">
                 <button class="btn rounded-circle border-0" id="sidebarToggle" type="button"></button>
