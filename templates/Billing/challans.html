@@ -65,124 +65,127 @@
     <div class="container mt-5">
         <div class="accordion" id="challanAccordion">
             {% for challan in challans %}
-                <div class="container mt-3">
-                    <button id="download" class="btn btn-primary mb-2">Download PDF</button>
-                    <div id="invoice" class="invoice">
-                        <div class="invoice-header d-flex justify-content-between">
-                            <div>
-                                <img src="{{ tenant_details.tenant_logo.url }}" class="logo" alt="Logo">
-                                <h4>{{ tenant_address.tenant.name }}</h4>
-                                <p>{{ tenant_address.plot_no }}
-                                    <br>{{ tenant_address.address_line_1 }}
-                                    <br>{{ tenant_address.address_line_2 }}
-                                    <br>{{ tenant_address.city }} - {{ tenant_address.pincode }}
-                                </p>
+                <div class="card">
+                    <div class="card-header" id="heading-{{ challan.id }}">
+                        <h2 class="mb-0 d-flex justify-content-between">
+                            <button class="btn btn-outline-primary accordion-button" type="button" data-toggle="collapse" data-target="#collapse-{{ challan.id }}" aria-expanded="true" aria-controls="collapse-{{ challan.id }}">
+                                Challan Number: {{ challan.challan_no }}
+                            </button>
+                            <button id="download-{{ challan.id }}" class="btn btn-outline-primary">Download PDF</button>
+                        </h2>
+                    </div>
+                    <div id="collapse-{{ challan.id }}" class="collapse" aria-labelledby="heading-{{ challan.id }}" data-parent="#challanAccordion">
+                        <div class="card-body">
+                            <div id="invoice-{{ challan.id }}" class="invoice">
+                                <div class="invoice-header d-flex justify-content-between">
+                                    <div>
+                                        <img src="{{ tenant_details.tenant_logo.url }}" class="logo" alt="Logo">
+                                        <h4>{{ tenant_address.tenant.name }}</h4>
+                                        <p>{{ tenant_address.plot_no }}
+                                            <br>{{ tenant_address.address_line_1 }}
+                                            <br>{{ tenant_address.address_line_2 }}
+                                            <br>{{ tenant_address.city }} - {{ tenant_address.pincode }}
+                                        </p>
+                                    </div>
+                                    <div class="details col-md-6 text-md-right text-left mt-md-0">
+                                        <div class="row">
+                                            <div class="col">
+                                                <p>Challan Number</p>
+                                            </div>
+                                            <div class="col">
+                                                <p>{{ challan.challan_no }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <p>Challan Date</p>
+                                            </div>
+                                            <div class="col">
+                                                <p>{{ challan.challan_date }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <p>Order Number</p>
+                                            </div>
+                                            <div class="col">
+                                                <p>{{ challan.order_no }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <p>Order Date</p>
+                                            </div>
+                                            <div class="col">
+                                                <p>{{ challan.order_date }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <p>Vehicle Number</p>
+                                            </div>
+                                            <div class="col">
+                                                <p>{{ challan.vehicle_no }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="invoice-details row">
+                                    <div class="col-md-6">
+                                        <h5>Bill To</h5>
+                                        <span>
+                                            {{ challan.billing_to }}
+                                        </span>
+                                    </div>
+                                    <div class="col-md-6 text-md-right">
+                                        <h5>Ship To</h5>
+                                        <span>
+                                            {{ challan.shipping_to }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <table class="table table-sm">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Product</th>
+                                        <th>Bundle</th>
+                                        <th>Quantity</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for item in challan.challan_items %}
+                                        {% if item.challan_id == challan.id %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ item.challan_po.product_name.product_name }}</td>
+                                                <td>
+                                                    {% for bundle in item.bundles %}
+                                                        <div>{{ bundle.size }}X{{ bundle.quantity }}</div>
+                                                    {% endfor %}
+                                                </td>
+                                                <td>{{ item.quantity }}</td>
+                                                <td>{{ item.remarks }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <div class="terms">
+                                    <p><strong>Notes</strong><br>{{ challan.challan_note }}</p>
+                                </div>
                             </div>
-                            <div class="details col-md-6 text-md-right text-left mt-md-0">
-                                <div class="row">
-                                    <div class="col">
-                                        <p>Challan Number</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ challan.challan_no }}</p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col">
-                                        <p>Challan Date</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ challan.challan_date }}</p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col">
-                                        <p>Order Number</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ challan.order_no }}</p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col">
-                                        <p>Order Date</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ challan.order_date }}</p>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col">
-                                        <p>Vehicle Number</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ challan.vehicle_no }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="invoice-details row">
-                            <div class="col-md-6">
-                                <h5>Bill To</h5>
-                                <span>
-                                    {{ challan.billing_to }}
-                                </span>
-                            </div>
-                            <div class="col-md-6 text-md-right">
-                                <h5>Ship To</h5>
-                                <span>
-                                    {{ challan.shipping_to }}
-                                </span>
-                            </div>
-                        </div>
-                        <table class="table table-sm">
-                            <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Item & Description</th>
-                                <th>Qty</th>
-                                <th>Rate</th>
-                                <th>Amount</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Brochure Design<br>Brochure design - Single sided (Color)</td>
-                                <td>1.00</td>
-                                <td>900.00</td>
-                                <td>900.00</td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Web Design packages (Simple)<br>10 Pages, Slider, Free Logo, Dynamic Website, Free
-                                    Domain, Hosting Free for 1st year
-                                </td>
-                                <td>1.00</td>
-                                <td>10,000.00</td>
-                                <td>10,000.00</td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>Print Ad - Newspaper<br>A full-page ad, Nationwide Circulation (Colour)</td>
-                                <td>1.00</td>
-                                <td>7,500.00</td>
-                                <td>7,500.00</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                        <div class="terms">
-                            <p><strong>Notes</strong><br>{{ challan.challan_note }}</p>
                         </div>
                     </div>
                 </div>
                 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
                 <script>
-                    document.getElementById('download').addEventListener('click', () => {
-                        const invoice = document.getElementById('invoice');
+                    document.getElementById('download-{{ challan.id }}').addEventListener('click', () => {
+                        const invoice = document.getElementById('invoice-{{ challan.id }}');
                         const opt = {
                             margin: 0.2,
-                            filename: 'invoice.pdf',
+                            filename: 'invoice-{{ challan.id }}.pdf',
                             image: {type: 'jpeg', quality: 0.98},
                             html2canvas: {scale: 2},
                             jsPDF: {unit: 'in', format: [8, 5.5], orientation: 'portrait'}
@@ -193,8 +196,4 @@
             {% endfor %}
         </div>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 {% endblock %}

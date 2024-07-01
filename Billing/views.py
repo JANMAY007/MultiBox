@@ -14,11 +14,12 @@ def challans(request):
     challan_items = ChallanItem.objects.filter(challan__in=tenant_challans)
     tenant_details = Tenant.objects.get(name=tenant.name)
     tenant_address = TenantAddress.objects.get(tenant__name=tenant.name)
+    for challan in tenant_challans:
+        challan.challan_items = challan_items.filter(challan=challan)
     context = {
         'tenant_details': tenant_details,
         'tenant_address': tenant_address,
         'challans': tenant_challans,
-        'challan_items': challan_items
     }
     return render(request, 'Billing/challans.html', context)
 
@@ -28,7 +29,7 @@ def add_challan(request):
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Corrugation:register_tenant')
-
+# bundles of first product are being saved and rest are not being saved
     if request.method == 'POST':
         challan = Challan(
             tenant=tenant,
