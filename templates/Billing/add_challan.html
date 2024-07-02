@@ -23,7 +23,7 @@
             max-width: 150px;
         }
 
-        .invoice-header h2, .invoice-header h4 {
+        .invoice-header h4 {
             margin: 0;
         }
 
@@ -31,20 +31,11 @@
             text-align: right;
         }
 
-        .invoice-header .details h2 {
-            color: #B94A00;
-        }
-
-        .invoice-header .details .balance {
-            color: #B94A00;
-        }
-
         .invoice-details {
             margin-bottom: 20px;
         }
 
         .table thead th {
-            background: #B94A00;
             color: #fff;
             border: none;
         }
@@ -63,7 +54,7 @@
     </style>
     <div class="container">
         <form action="{% url 'Billing:add_challan' %}" method="post">
-        {% csrf_token %}
+            {% csrf_token %}
             <div class="invoice">
                 <div class="invoice-header d-flex flex-wrap justify-content-between align-items-center">
                     <div class="col-md-6 p-0">
@@ -120,13 +111,13 @@
                 </div>
 
                 <table class="table">
-                    <thead>
+                    <thead class="table-dark">
                     <tr>
                         <th>#</th>
                         <th>Product</th>
+                        <th>Bundles</th>
                         <th>Quantity</th>
                         <th>Remarks</th>
-                        <th>Bundles</th>
                         <th>Action</th>
                     </tr>
                     </thead>
@@ -137,13 +128,12 @@
                             <select class="form-control" name="product[]">
                                 {% for purchase_order in purchase_orders %}
                                     <option value="{{ purchase_order.po_number }}">
-                                        {{ purchase_order.po_number }} -> {{ purchase_order.product_name__product_name }}
+                                        {{ purchase_order.po_number }}
+                                        -> {{ purchase_order.product_name__product_name }}
                                     </option>
                                 {% endfor %}
                             </select>
                         </td>
-                        <td><input type="number" class="form-control" name="quantity[]" required></td>
-                        <td><input type="text" class="form-control" name="remarks[]"></td>
                         <td>
                             <div class="bundle-container">
                                 <div class="bundle row">
@@ -153,12 +143,14 @@
                                     </div>
                                     <div class="col">
                                         <label>Quantity:</label>
-                                        <input type="number" class="form-control" name="bundle_quantity[]">
+                                        <input type="number" class="form-control" name="bundle_quantity[]" oninput="updateTotalQuantity(this)">
                                     </div>
                                 </div>
                             </div>
                             <button type="button" class="btn btn-primary btn-sm add-bundle">Add Bundle</button>
                         </td>
+                        <td><input type="number" class="form-control" name="quantity[]"></td>
+                        <td><input type="text" class="form-control" name="remarks[]"></td>
                         <td>
                             <button type="button" class="btn btn-danger btn-sm remove-row">Remove</button>
                         </td>
@@ -171,10 +163,16 @@
                     <p><strong>Terms & Conditions</strong><br>All payments must be made in full before the commencement
                         of any design work.</p>
                 </div>
-                <label for="challan_note">Note:</label>
-                <textarea name="challan_note" id="challan_note" cols="30" rows="4"></textarea>
+                <div class="row">
+                    <div class="col col-md-6">
+                        <label for="challan_note">Note:</label>
+                        <textarea name="challan_note" id="challan_note" cols="25" rows="2"></textarea>
+                    </div>
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Save</button>
         </form>
     </div>
 
@@ -190,13 +188,12 @@
                                  <select class="form-control" name="product[]">
                                      {% for purchase_order in purchase_orders %}
                                          <option value="{{ purchase_order.po_number }}">
-                                            {{ purchase_order.po_number }} -> {{ purchase_order.product_name__product_name }}
+                                            {{ purchase_order.po_number }} ->
+                {{ purchase_order.product_name__product_name }}
                                          </option>
                                      {% endfor %}
                                  </select>
                              </td>
-                             <td><input type="number" class="form-control" name="quantity[]" required></td>
-                             <td><input type="text" class="form-control" name="remarks[]"></td>
                              <td>
                                  <div class="bundle-container">
                                      <div class="bundle row">
@@ -206,12 +203,14 @@
                                          </div>
                                          <div class="col">
                                              <label>Quantity:</label>
-                                             <input type="number" class="form-control" name="bundle_quantity[]">
+                                             <input type="number" class="form-control" name="bundle_quantity[]" oninput="updateTotalQuantity(this)">
                                          </div>
                                      </div>
                                  </div>
                                  <button type="button" class="btn btn-primary btn-sm add-bundle">Add Bundle</button>
                              </td>
+                             <td><input type="number" class="form-control" name="quantity[]"></td>
+                             <td><input type="text" class="form-control" name="remarks[]"></td>
                              <td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>`;
 
             attachRemoveRowEvent(row.querySelector('.remove-row'));
@@ -240,11 +239,28 @@
                                        </div>
                                        <div class="col">
                                            <label>Quantity:</label>
-                                           <input type="number" class="form-control" name="bundle_quantity[]">
+                                           <input type="number" class="form-control" name="bundle_quantity[]" oninput="updateTotalQuantity(this)">
                                        </div>`;
 
                 bundleContainer.appendChild(newBundle);
             });
+        }
+
+        function updateTotalQuantity(input) {
+            let bundleContainer = input.closest('.bundle-container');
+            let bundles = bundleContainer.getElementsByClassName('bundle');
+            let totalQuantity = 0;
+
+            for (let bundle of bundles) {
+                let quantityInput = bundle.querySelector('input[name="bundle_quantity[]"]');
+                let quantity = parseInt(quantityInput.value) || 0;
+                let sizeInput = bundle.querySelector('input[name="bundle_size[]"]');
+                let size = parseInt(sizeInput.value) || 0;
+                totalQuantity += (quantity * size);
+            }
+
+            let productRow = bundleContainer.closest('tr');
+            productRow.querySelector('input[name="quantity[]"]').value = totalQuantity;
         }
 
         function updateRowNumbers() {
