@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (search_reels, paper_reels, update_reel, delete_reel, reels_stock,
                     restore_reel, add_product, product_archive, update_products,
+                    add_partition, update_partition, delete_partition,
                     delete_products, restore_products, products_detail,
                     product_detail_archive, register_tenant, purchase_order,
                     add_purchase_order_detail, add_purchase_order_detailed,
@@ -32,6 +33,9 @@ urlpatterns = [
     path('update_products/<int:pk>/', update_products, name='update_products'),
     path('delete_products/<int:pk>/', delete_products, name='delete_products'),
     path('restore_products/<int:pk>/', restore_products, name='restore_products'),
+    path('add_partition/', add_partition, name='add_partition'),
+    path('update_partition/<int:pk>/', update_partition, name='update_partition'),
+    path('delete_partition/<int:pk>/', delete_partition, name='delete_partition'),
     path('products_detail/<int:pk>/', products_detail, name='products_detail'),
     path('product_detail_archive/<int:pk>/', product_detail_archive, name='product_detail_archive'),
     path('purchase_order/', purchase_order, name='purchase_order'),
