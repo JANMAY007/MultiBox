@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import (search_reels, paper_reels, update_reel, delete_reel,
+from .views import (search_reels, paper_reels, update_reel, delete_reel, reels_stock,
                     restore_reel, add_product, product_archive, update_products,
                     delete_products, restore_products, products_detail,
                     product_detail_archive, register_tenant, purchase_order,
@@ -24,6 +24,7 @@ urlpatterns = [
     path('update_reel/<int:pk>/', update_reel, name='update_reel'),
     path('delete_reel/<int:pk>/', delete_reel, name='delete_reel'),
     path('restore_reel/<int:pk>/', restore_reel, name='restore_reel'),
+    path('reels_stock/', reels_stock, name='reels_stock'),
     path('', stocks, name='stocks'),
     path('delete_stocks/<int:pk>/', delete_stock, name='delete_stock'),
     path('add_product/', add_product, name='add_product'),

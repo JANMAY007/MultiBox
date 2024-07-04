@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.conf import settings
 from django.http import JsonResponse
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
@@ -293,6 +293,22 @@ def restore_reel(request, pk):
         messages.success(request, 'Paper reel restored successfully.')
         return redirect('Corrugation:paper_reels')
     return redirect('Corrugation:paper_reels')
+
+
+@login_required
+def reels_stock(request):
+    tenant = get_tenant_for_user(request)
+    if tenant is None:
+        messages.error(request, 'You are not associated with any tenant.')
+        return redirect('Corrugation:register_tenant')
+    products = Product.objects.filter(tenant=tenant).values('product_name', 'size', 'gsm', 'bf', 'weight')
+    for product in products:
+        product['stock_quantity'] = Stock.objects.filter(product__product_name=product['product_name']).aggregate(
+            Sum('stock_quantity'))['stock_quantity__sum'] or 0
+    context = {
+        'products': products,
+    }
+    return render(request, 'Corrugation/reels_stock.html', context)
 
 
 @login_required
@@ -863,7 +879,7 @@ def production(request):
     production_data = []
     for production_object in production_objects:
         production_reels = ProductionReels.objects.filter(production=production_object)
-        reels_data = [reel.reel.reel_number for reel in production_reels]
+        reels_data = [(reel.reel.reel_number, reel.reel.size, reel.reel.weight) for reel in production_reels]
         production_data.append({
             'pk': production_object.pk,
             'product_name': production_object.product.product_name,
@@ -874,7 +890,7 @@ def production(request):
 
     context = {
         'products': Product.objects.filter(tenant=tenant).values('product_name'),
-        'reels': PaperReels.objects.filter(tenant=tenant).values('reel_number'),
+        'reels': PaperReels.objects.filter(tenant=tenant).values('reel_number', 'size', 'weight').order_by('size'),
         'productions': production_data,
     }
     return render(request, 'Corrugation/production.html', context)
