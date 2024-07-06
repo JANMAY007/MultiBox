@@ -1,22 +1,9 @@
 from django.contrib import admin
-from .models import (Tenant, TenantEmployees, PaperReels, Product, Partition,
-                     PurchaseOrder, Dispatch, Program, Production, ProductionReels,
-                     Stock, TenantGeneralInfo, TenantPaymentInfo, TenantAddress, TenantBuyers)
+from .models import (PaperReels, Product, Partition, PurchaseOrder, Dispatch,
+                     Program, Production, ProductionReels, Stock)
 
 
 admin.site.register(PaperReels)
-
-
-class TenantEmployeesInline(admin.TabularInline):
-    model = TenantEmployees
-    extra = 1
-
-
-class TenantAdmin(admin.ModelAdmin):
-    inlines = [TenantEmployeesInline]
-
-
-admin.site.register(Tenant, TenantAdmin)
 
 
 class PartitionInline(admin.TabularInline):
@@ -45,7 +32,3 @@ admin.site.register(Program)
 admin.site.register(Production)
 admin.site.register(ProductionReels)
 admin.site.register(Stock)
-admin.site.register(TenantGeneralInfo)
-admin.site.register(TenantPaymentInfo)
-admin.site.register(TenantAddress)
-admin.site.register(TenantBuyers)

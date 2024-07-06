@@ -1,81 +1,23 @@
 from datetime import datetime
-from django.conf import settings
 from django.http import JsonResponse
 from django.db.models import Q, Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from .models import (Tenant, TenantEmployees, PaperReels, Product, Partition,
-                     PurchaseOrder, Dispatch, Stock, Program, Production,
-                     ProductionReels, TenantBuyers, TenantAddress)
+from .models import (PaperReels, Product, Partition, PurchaseOrder, Dispatch,
+                     Stock, Program, Production, ProductionReels)
+from Tenant.models import TenantBuyers
+from Tenant.views import get_tenant_for_user
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 import django.db.utils
 import pandas as pd
 
 
 def offline(request):
     return render(request, 'offline.html')
-
-
-@login_required
-def register_tenant(request):
-    if request.method == 'POST':
-        tenant_name = request.POST.get('tenant_name')
-        tenant_logo = request.FILES.get('tenant_logo')
-        user = request.user
-        if Tenant.objects.filter(owner=user).exists():
-            messages.info(request, 'You already have a tenant registered.')
-            return redirect('Corrugation:register_tenant')
-        Tenant.objects.create(
-            owner=user,
-            name=tenant_name,
-            tenant_logo=tenant_logo
-        )
-        # Send email
-        subject = 'Tenant Registration MultiBox'
-        html_message = render_to_string('Corrugation/tenant_registration_email.html', {'user': user})
-        plain_message = strip_tags(html_message)
-        from_email = settings.DEFAULT_FROM_EMAIL
-        to = user.email
-        send_mail(subject, plain_message, from_email, [to], html_message=html_message)
-
-        messages.success(request, 'Tenant registered successfully.')
-        messages.info(request, 'An email has been sent to you for the registration details.')
-        return redirect('Corrugation:register_tenant')
-    tenant_address = TenantAddress.objects.filter(tenant__owner=request.user).first()
-    tenant_info = Tenant.objects.filter(owner=request.user).values('name', 'tenant_gst_number').first()
-    context = {
-        'tenant_address': tenant_address,
-        'tenant_info': tenant_info,
-    }
-    return render(request, 'Corrugation/register_tenant.html', context)
-
-
-def get_tenant_for_user(request):
-    try:
-        tenant = Tenant.objects.get(owner=request.user)
-        if not tenant.active:
-            return redirect('inactive_tenant_page')
-        return tenant
-    except Tenant.DoesNotExist:
-        try:
-            tenant_employee = TenantEmployees.objects.get(user=request.user)
-            tenant = tenant_employee.tenant
-            if not tenant.active:
-                return redirect('inactive_tenant_page')
-            return tenant
-        except TenantEmployees.DoesNotExist:
-            return None
-
-
-@login_required
-def inactive_tenant_page(request):
-    return render(request, 'Corrugation/inactive_tenant.html')
 
 
 @login_required
@@ -100,7 +42,7 @@ def stocks(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
     if request.method == 'POST':
         product_name = request.POST.get('product_name')
         stock_quantity = request.POST.get('stock_quantity')
@@ -175,7 +117,7 @@ def paper_reels(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
     if request.method == 'POST':
         reel_number = request.POST.get('reel_number')
         bf = request.POST.get('bf')
@@ -226,7 +168,7 @@ def upload_bulk_reels(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
     if request.method == 'POST':
         if 'reel_file' in request.FILES:
             file = request.FILES['reel_file']
@@ -306,7 +248,7 @@ def reels_stock(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
     products = Product.objects.filter(tenant=tenant).values('product_name', 'size', 'gsm', 'bf', 'weight')
     for product in products:
         product['stock_quantity'] = Stock.objects.filter(product__product_name=product['product_name']).aggregate(
@@ -322,7 +264,7 @@ def add_product(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
     if request.method == 'POST':
         product_name = request.POST.get('product_name')
         box_no = request.POST.get('box_no')
@@ -398,7 +340,7 @@ def product_archive(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
     products = Product.objects.filter(archive=True, tenant=tenant).values('product_name', 'pk')
     context = {
         'products': products,
@@ -541,7 +483,7 @@ def purchase_order(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
     if not request.user.is_staff:
         return redirect('Corrugation:contact_support')
     po_active_count_by_given_by = (PurchaseOrder.objects.filter(active=True, product_name__tenant=tenant)
@@ -560,7 +502,7 @@ def purchase_order_archive(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
     if not request.user.is_staff:
         return redirect('Corrugation:contact_support')
     po_active_count_by_given_by = (PurchaseOrder.objects.filter(active=False, product_name__tenant=tenant)
@@ -735,7 +677,7 @@ def daily_program(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
     programs = Program.objects.filter(active=True, product__tenant=tenant).order_by('-program_date')
     # Prepare data to return
     programs_data = []
@@ -794,7 +736,7 @@ def program_archive(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
     programs = Program.objects.filter(active=False, product__tenant=tenant).order_by('-program_date')
     programs_data = []
     for program in programs:
@@ -874,7 +816,7 @@ def production(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
     if request.method == 'POST':
         # Extract data from POST request
         data = request.POST
@@ -928,7 +870,7 @@ def production_archive(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
     production_objects = Production.objects.filter(active=False, product__tenant=tenant)
     production_data = []
     for production_object in production_objects:

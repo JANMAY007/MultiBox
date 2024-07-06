@@ -17,7 +17,7 @@
             }, 2500)
         </script>
     {% endif %}
-    <form method="post" href="{% url 'Corrugation:register_tenant' %}" enctype="multipart/form-data">
+    <form method="post" href="{% url 'Tenant:register_tenant' %}" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="row mb-3">
             <div class="col-lg-4">

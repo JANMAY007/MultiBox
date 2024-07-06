@@ -2,14 +2,15 @@ from django.shortcuts import render, redirect
 from .models import Challan, ChallanItem
 from django.contrib import messages
 from Corrugation.views import get_tenant_for_user
-from Corrugation.models import PurchaseOrder, TenantAddress, Tenant
+from Corrugation.models import PurchaseOrder, Tenant
+from Tenant.models import TenantAddress
 
 
 def challans(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
     tenant_challans = Challan.objects.filter(tenant=tenant)
     challan_items = ChallanItem.objects.filter(challan__in=tenant_challans)
     tenant_details = Tenant.objects.get(name=tenant.name)
@@ -28,7 +29,7 @@ def add_challan(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
-        return redirect('Corrugation:register_tenant')
+        return redirect('Tenant:register_tenant')
 # bundles of first product are being saved and rest are not being saved
     if request.method == 'POST':
         challan = Challan(

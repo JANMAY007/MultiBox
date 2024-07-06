@@ -24,6 +24,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('', include('Corrugation.urls')),
     path('billing/', include('Billing.urls')),
+    path('tenant/', include('Tenant.urls')),
 ]
 
 if settings.DEBUG:
