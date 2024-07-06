@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from .models import (Tenant, TenantEmployees, PaperReels, Product, Partition,
                      PurchaseOrder, Dispatch, Stock, Program, Production,
-                     ProductionReels, TenantBuyers)
+                     ProductionReels, TenantBuyers, TenantAddress)
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -47,7 +47,13 @@ def register_tenant(request):
         messages.success(request, 'Tenant registered successfully.')
         messages.info(request, 'An email has been sent to you for the registration details.')
         return redirect('Corrugation:register_tenant')
-    return render(request, 'Corrugation/register_tenant.html')
+    tenant_address = TenantAddress.objects.filter(tenant__owner=request.user).first()
+    tenant_info = Tenant.objects.filter(owner=request.user).values('name', 'tenant_gst_number').first()
+    context = {
+        'tenant_address': tenant_address,
+        'tenant_info': tenant_info,
+    }
+    return render(request, 'Corrugation/register_tenant.html', context)
 
 
 def get_tenant_for_user(request):

@@ -9,6 +9,7 @@ class Tenant(models.Model):
 
     name = models.CharField(max_length=100, unique=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    tenant_gst_number = models.CharField(max_length=15, null=True, blank=True)
     active = models.BooleanField(default=True)
     tenant_logo = models.ImageField(upload_to='tenant_logo/')
     amount_decided = models.FloatField(null=True, blank=True)

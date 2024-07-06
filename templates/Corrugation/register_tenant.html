@@ -12,68 +12,253 @@
             </div>
         {% endfor %}
         <script>
-            setTimeout(function() {
+            setTimeout(function () {
                 bootstrap.Alert.getOrCreateInstance(document.querySelector(".alert")).close();
             }, 2500)
         </script>
     {% endif %}
-    {% if tenant_registered %}
-        <div class="bg-gradient-primary">
-            <div class="container">
-                <div class="card shadow-lg o-hidden border-0 my-5">
-                    <div class="card-body p-0">
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="p-5 text-center">
-                                    <h4 class="text-dark mb-4">Please Check your Email...</h4>
-                                    <p>
-                                        Thank you for registering your tenant.
-                                        <br>
-                                        Please Check you email for further information.
-                                    </p>
-                                </div>
-                            </div>
+    <form method="post" href="{% url 'Corrugation:register_tenant' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-lg-4">
+                <div class="card mb-3">
+                    <div class="card-body text-center shadow">
+                        {% if tenant_logo_url %}
+                            <img class="rounded-circle img-fluid img-thumbnail rounded-circle mb-3 mt-4"
+                                 src="{{ tenant_logo_url }}" width="160"
+                                 height="160" alt="Logo">
+                        {% else %}
+                            <img class="rounded-circle img-fluid img-thumbnail rounded-circle mb-3 mt-4"
+                                 src="{% static 'logo/logo.svg' %}" width="160"
+                                 height="160" alt="Logo">
+                        {% endif %}
+                        <div class="mb-3">
+                            <input type="file" name="tenant_image" class="form-control">
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    {% else %}
-        <div class="bg-gradient-primary">
-            <div class="container">
-                <div class="card shadow-lg o-hidden border-0 my-5">
-                    <div class="card-body p-0">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="text-primary fw-bold m-0">Tenant Name and GST</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label d-block" for="tenant-name"><strong>Tenant Name</strong></label>
+                            <input class="form-control" type="text" id="tenant-name" value="{{ tenant_info.name }}" name="tenant-name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label d-block" for="tenant-gst"><strong>Tenant GST</strong></label>
+                            <input class="form-control" type="text" id="tenant-gst" value="{{ tenant_info.tenant_gst_number }}"
+                                   name="tenant-gst" maxlength="15" minlength="15">
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="text-primary fw-bold m-0">Data Deletion Days</h6>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="small fw-bold">For Paper Reels<span id="paper-reels-value"
+                                                                       class="float-end">20</span></h4>
+                        <label for="paper-reels"></label>
+                        <input type="range" class="form-range" id="paper-reels" name="paper-reels" min="10"
+                               max="100"
+                               value="15" oninput="updateValue('paper-reels')">
+
+                        <h4 class="small fw-bold">For Program<span id="program-value" class="float-end">40</span>
+                        </h4>
+                        <label for="program"></label>
+                        <input type="range" class="form-range" id="program" name="program" min="10" max="100"
+                               value="15" oninput="updateValue('program')">
+
+                        <h4 class="small fw-bold">For Production<span id="production-value"
+                                                                      class="float-end">60</span></h4>
+                        <label for="production"></label>
+                        <input type="range" class="form-range" id="production" name="production" min="10" max="100"
+                               value="15" oninput="updateValue('production')">
+
+                        <h4 class="small fw-bold">For Purchase Order<span id="purchase-order-value"
+                                                                          class="float-end">80</span></h4>
+                        <label for="purchase-order"></label>
+                        <input type="range" class="form-range" id="purchase-order" name="purchase-order" min="10"
+                               max="100" value="15" oninput="updateValue('purchase-order')">
+                    </div>
+                </div>
+                <div class="card shadow mb-5">
+                    <div class="card-header py-3">
+                        <p class="text-primary m-0 fw-bold">Premium Tenant&nbsp;<i class="fas fa-check-double"></i>
+                        </p>
+                    </div>
+                    <div class="card-body">
                         <div class="row">
-                            <div class="col-lg-5 d-none d-lg-flex">
-                                <div class="d-flex bg-login-image justify-content-center">
-                                    <img src="{% static 'logo/logo.png' %}" alt="logo" style="max-width: 80%">
-                                </div>
-                            </div>
-                            <div class="col-lg-7">
-                                <div class="p-5">
-                                    <div class="text-center">
-                                        <h4 class="text-dark mb-4">Register Tenant</h4>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch" style="width: 187.656px;">
+                                        <input class="form-check-input" type="checkbox" id="formCheck-1"
+                                               name="month-report">
+                                        <label class="form-check-label" for="formCheck-1"><strong>Month
+                                            Report</strong></label>
                                     </div>
-                                    <form class="user" method="post" action="{% url 'Corrugation:register_tenant' %}" enctype="multipart/form-data">
-                                        {% csrf_token %}
-                                        <div class="mb-3">
-                                            <label for="tenantName">Tenant Name</label>
-                                            <input class="form-control form-control-user" type="text"
-                                                   id="tenantName" placeholder="Tenant Name" name="tenant_name" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="tenantLogo">Tenant Logo</label>
-                                            <input class="form-control form-control-user" type="file"
-                                                   id="tenantLogo" name="tenant_logo" required>
-                                        </div>
-                                        <button class="btn btn-primary d-block btn-user w-100" type="submit">Register Tenant</button>
-                                    </form>
                                 </div>
+                            </div>
+                            <div class="col">
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="formCheck-3"
+                                               name="database-copy">
+                                        <label class="form-check-label" for="formCheck-3"><strong>Database
+                                            Copy</strong></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <figure>
+                                    <blockquote class="blockquote">
+                                        <p class="mb-0">Storage Used (80%)</p>
+                                    </blockquote>
+                                    <figcaption class="blockquote-footer">(40MB of 50MB)</figcaption>
+                                </figure>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="col-lg-8">
+                <div class="row">
+                    <div class="col">
+                        <div class="card shadow" style="margin: 0 0 16px;">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 fw-bold">Tenant Contacts</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label" for="tenant-email"><strong>Email Id</strong></label>
+                                    <input class="form-control" id="tenant-email" type="email"
+                                           placeholder="Email Id" name="tenant-email">
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="tenant-phone"><strong>Phone
+                                                Number</strong></label>
+                                            <input class="form-control" id="tenant-phone" type="tel"
+                                                   name="tenant-phone" placeholder="Phone Number">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card shadow mb-3" style="margin: 0;">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 fw-bold">Owner Settings</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="mb-3">
+                                            <label class="form-label"
+                                                   for="username"><strong>Username</strong></label>
+                                            <input class="form-control" type="text" id="username" value="{{ user.username }}" name="username">
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="email"><strong>Email
+                                                Address</strong></label>
+                                            <input class="form-control" type="email" id="email" value="{{ user.email }}" name="email">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="first_name"><strong>First
+                                                Name</strong></label>
+                                            <input class="form-control" type="text" id="first_name" value="{{ user.first_name }}" name="first_name">
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="mb-3">
+                                            <label class="form-label" for="last_name"><strong>Last
+                                                Name</strong></label>
+                                            <input class="form-control" type="text" id="last_name" value="{{ user.last_name }}" name="last_name">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card shadow" style="margin: 0 0 16px;">
+                            <div class="card-header py-3">
+                                <p class="text-primary m-0 fw-bold">Tenant Address</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label" for="plot-no"><strong>Plot Number</strong></label>
+                                    <input class="form-control" id="plot-no" type="text" name="plot-no" value="{{ tenant_address.plot_no }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="address-line-1"><strong>Address Line
+                                        1</strong></label>
+                                    <input class="form-control" id="address-line-1" type="text"
+                                           name="address-line-1" value="{{ tenant_address.address_line_1 }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="address-line-2"><strong>Address Line
+                                        2</strong></label>
+                                    <input class="form-control" id="address-line-2" type="text"
+                                           name="address-line-2" value="{{ tenant_address.address_line_2 }}">
+                                </div>
+                                <div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <label class="form-label" for="city"><strong>City</strong></label>
+                                            <input class="form-control" id="city" type="text" name="city"
+                                                   value="{{ tenant_address.city }}" required>
+                                        </div>
+                                        <div class="col">
+                                            <label class="form-label" for="pincode"><strong>Pincode</strong></label>
+                                            <input class="form-control" id="pincode" type="text" name="pincode"
+                                                   value="{{ tenant_address.pincode }}" minlength="6" maxlength="6" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <label class="form-label" for="state"><strong>State</strong></label>
+                                            <input class="form-control" id="state" type="text" name="state"
+                                                   value="{{ tenant_address.state }}" required>
+                                        </div>
+                                        <div class="col">
+                                            <label class="form-label" for="country"><strong>Country</strong></label>
+                                            <input class="form-control" id="country" type="text" name="country"
+                                                   value="{{ tenant_address.country }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <button class="btn btn-primary" type="submit">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    {% endif %}
+    </form>
+    <script>
+        function updateValue(id) {
+            var rangeInput = document.getElementById(id);
+            var valueSpan = document.getElementById(id + '-value');
+            valueSpan.textContent = rangeInput.value;
+        }
+
+        // Initialize values
+        document.getElementById('paper-reels-value').textContent = document.getElementById('paper-reels').value;
+        document.getElementById('program-value').textContent = document.getElementById('program').value;
+        document.getElementById('production-value').textContent = document.getElementById('production').value;
+        document.getElementById('purchase-order-value').textContent = document.getElementById('purchase-order').value;
+    </script>
 {% endblock %}
