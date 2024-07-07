@@ -7,12 +7,16 @@ class Tenant(models.Model):
         verbose_name = 'Tenant'
         verbose_name_plural = 'Tenants'
 
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     tenant_gst_number = models.CharField(max_length=15, null=True, blank=True)
     active = models.BooleanField(default=True)
     tenant_logo = models.ImageField(upload_to='tenant_logo/')
     amount_decided = models.FloatField(null=True, blank=True)
+    email = models.EmailField()
+    email_verified = models.BooleanField(default=False)
+    phone = models.CharField(max_length=15)
+    phone_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     object = models.manager
