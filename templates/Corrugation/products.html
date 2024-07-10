@@ -30,9 +30,15 @@
     <div class="container-fluid">
         <div class="row mb-3">
             <div class="col-md-2">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                    Add Product
-                </button>
+                <!-- Start: Split Button Success -->
+                <a class="btn btn-primary btn-icon-split" role="button" data-bs-toggle="modal"
+                   data-bs-target="#addProductModal">
+                <span class="text-white-50 icon">
+                    <i class="fas fa-box-open"></i>
+                </span>
+                    <span class="text-white text">Add Product</span>
+                </a>
+                <!-- End: Split Button Success -->
             </div>
             <div class="col-md-4">
                 <label for="searchBar"></label>
@@ -268,7 +274,8 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="partition_gsm_0" class="form-label">Ply GSM</label>
-                                        <input type="text" class="form-control" id="partition_gsm_0" name="partition_gsm">
+                                        <input type="text" class="form-control" id="partition_gsm_0"
+                                               name="partition_gsm">
                                     </div>
                                     <div class="mb-3">
                                         <label for="partition_bf_0" class="form-label">Ply BF</label>
