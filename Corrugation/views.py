@@ -57,11 +57,27 @@ def stocks(request):
             pass
         messages.info(request, 'Stock updated successfully.')
         return redirect('Corrugation:stocks')
+    stocks_history = Stock.objects.filter(product__tenant=tenant).values('product__product_name', 'stock_quantity',
+                                                                         'pk', 'tag')
+    for stock in stocks_history:
+        stock['dispatches'] = Dispatch.objects.filter(po__product_name__product_name=stock['product__product_name']) \
+            .values('dispatch_date', 'dispatch_quantity', 'po__po_given_by')
     context = {
         'products': Product.objects.filter(tenant=tenant).values('product_name'),
-        'stocks': Stock.objects.filter(product__tenant=tenant).values('product__product_name', 'stock_quantity', 'pk'),
+        'stocks': stocks_history,
     }
     return render(request, 'Corrugation/stocks.html', context)
+
+
+@login_required
+def update_stock_tag(request, pk):
+    stock = Stock.objects.get(pk=pk)
+    if request.method == 'POST':
+        stock.tag = request.POST.get('tag')
+        stock.save()
+        messages.info(request, 'Stock tag updated')
+        return redirect(reverse('Corrugation:stock'))
+    return render(request, 'Corrugation/stocks.html', {'stock': stock})
 
 
 @login_required
