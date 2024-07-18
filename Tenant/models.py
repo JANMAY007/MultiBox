@@ -2,6 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+def tenant_logo_path(instance, filename):
+    return f'tenant_logo/{instance.name}/{filename}'
+
+
 class Tenant(models.Model):
     class Meta:
         verbose_name = 'Tenant'
@@ -11,7 +15,7 @@ class Tenant(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     tenant_gst_number = models.CharField(max_length=15, null=True, blank=True)
     active = models.BooleanField(default=True)
-    tenant_logo = models.ImageField(upload_to='tenant_logo/')
+    tenant_logo = models.ImageField(upload_to=tenant_logo_path)
     amount_decided = models.FloatField(null=True, blank=True)
     email = models.EmailField()
     email_verified = models.BooleanField(default=False)
