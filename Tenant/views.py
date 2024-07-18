@@ -93,3 +93,8 @@ def get_tenant_for_user(request):
 @login_required
 def inactive_tenant_page(request):
     return render(request, 'Tenant/inactive_tenant.html')
+
+
+@login_required
+def tenant_plans(request):
+    return render(request, 'Tenant/tenant_plans.html')
