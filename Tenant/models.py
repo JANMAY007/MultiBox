@@ -87,23 +87,6 @@ class TenantGeneralInfo(models.Model):
         return f'{self.tenant}'
 
 
-class TenantPaymentInfo(models.Model):
-    class Meta:
-        verbose_name = 'Tenant Payment Info'
-        verbose_name_plural = 'Tenant Payment Infos'
-
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
-    payment_datetime = models.DateTimeField()
-    payment_amount = models.FloatField()
-    payment_notes = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    object = models.manager
-
-    def __str__(self):
-        return f'{self.tenant.name} - {self.payment_datetime}'
-
-
 class TenantBuyers(models.Model):
     class Meta:
         verbose_name = 'Tenant Buyer'
