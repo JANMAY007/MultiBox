@@ -77,22 +77,17 @@ def get_tenant_for_user(request):
     try:
         tenant = Tenant.objects.get(owner=request.user)
         if not tenant.active:
-            return redirect('Tenant:inactive_tenant_page')
+            return redirect('Tenant:register_tenant')
         return tenant
     except Tenant.DoesNotExist:
         try:
             tenant_employee = TenantEmployees.objects.get(user=request.user)
             tenant = tenant_employee.tenant
             if not tenant.active:
-                return redirect('Tenant:inactive_tenant_page')
+                return redirect('Tenant:register_tenant')
             return tenant
         except TenantEmployees.DoesNotExist:
             return None
-
-
-@login_required
-def inactive_tenant_page(request):
-    return render(request, 'Tenant/inactive_tenant.html')
 
 
 @login_required
