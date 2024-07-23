@@ -4,7 +4,6 @@
     Add Challan
 {% endblock %}
 {% block content %}
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .invoice {
             background: #fff;
@@ -51,6 +50,20 @@
         .terms {
             margin-top: 20px;
         }
+
+        .signatures {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 40px;
+        }
+
+        .signature-block {
+            text-align: center;
+            width: 45%;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+        }
     </style>
     <div class="container">
         <form action="{% url 'Billing:add_challan' %}" method="post">
@@ -69,27 +82,27 @@
                     <div class="details col-md-6 text-md-right text-left mt-md-0">
                         <div class="row">
                             <div class="col col-md-6">
-                                <label for="challan_no" class="form-label">Challan Number</label>
+                                <label for="challan_no" class="form-label text-dark">Challan Number</label>
                                 <input type="text" class="form-control" id="challan_no" name="challan_no" required>
                             </div>
                             <div class="col col-md-6">
-                                <label for="challan_date" class="form-label">Challan Date</label>
+                                <label for="challan_date" class="form-label text-dark">Challan Date</label>
                                 <input type="date" class="form-control" id="challan_date" name="challan_date" required>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col col-md-6">
-                                <label for="order_no" class="form-label">Order Number</label>
+                                <label for="order_no" class="form-label text-dark">Order Number</label>
                                 <input type="text" class="form-control" id="order_no" name="order_no" required>
                             </div>
                             <div class="col col-md-6">
-                                <label for="order_date" class="form-label">Order Date</label>
+                                <label for="order_date" class="form-label text-dark">Order Date</label>
                                 <input type="date" class="form-control" id="order_date" name="order_date" required>
                             </div>
                         </div>
                         <div class="row mt-1">
                             <div class="col">
-                                <label for="vehicle_no" class="form-label">Vehicle Number</label>
+                                <label for="vehicle_no" class="form-label text-dark">Vehicle Number</label>
                             </div>
                             <div class="col">
                                 <input type="text" class="form-control" name="vehicle_no" id="vehicle_no" required>
@@ -99,12 +112,12 @@
                 </div>
                 <div class="invoice-details row">
                     <div class="col-md-6">
-                        <h5>Bill To</h5>
+                        <h5 class="text-dark">Bill To</h5>
                         <label for="billing_to"></label>
                         <textarea name="billing_to" id="billing_to" cols="30" rows="4"></textarea>
                     </div>
                     <div class="col-md-6 text-md-right text-left mt-3 mt-md-0">
-                        <h5>Ship To</h5>
+                        <h5 class="text-dark">Ship To</h5>
                         <label for="shipping_to"></label>
                         <textarea name="shipping_to" id="shipping_to" cols="30" rows="4"></textarea>
                     </div>
@@ -165,11 +178,20 @@
                 </div>
                 <div class="row">
                     <div class="col col-md-6">
-                        <label for="challan_note">Note:</label>
+                        <label for="challan_note" class="text-dark">Note:</label>
                         <textarea name="challan_note" id="challan_note" cols="25" rows="2"></textarea>
                     </div>
                     <div class="col">
                         <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+                
+                <div class="signatures">
+                    <div class="signature-block">
+                        <p>Supplier Signature</p>
+                    </div>
+                    <div class="signature-block">
+                        <p>Buyer Signature</p>
                     </div>
                 </div>
             </div>
