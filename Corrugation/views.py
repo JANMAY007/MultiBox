@@ -130,6 +130,21 @@ def search_reels(request):
 
 
 @login_required
+def summary(request):
+    tenant = get_tenant_for_user(request)
+    if tenant is None:
+        messages.error(request, 'You are not associated with any tenant.')
+        return redirect('Tenant:register_tenant')
+    paper_reel_summary = PaperReels.objects.filter(tenant=tenant).values('size', 'gsm', 'bf').annotate(total_weight=Sum('weight'))
+    context = {
+        'paper_reel_summary': paper_reel_summary,
+        'total_reels': PaperReels.objects.filter(used=False).count(),
+        'total_weight': PaperReels.objects.filter(used=False).aggregate(Sum('weight'))['weight__sum'] or 0,
+    }
+    return render(request, 'Corrugation/summary.html', context)
+
+
+@login_required
 def paper_reels(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
