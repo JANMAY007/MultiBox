@@ -215,7 +215,7 @@
                                     {% csrf_token %}
                                     <div class="mb-3">
                                         <label for="supplier" class="form-label">Supplier</label>
-                                        <input type="text" class="form-control" id="supplier" name="supplier" 
+                                        <input type="text" class="form-control" id="supplier" name="supplier"
                                                value="{{ reel.supplier }}" required>
                                     </div>
                                     <div class="mb-3">
@@ -261,15 +261,15 @@
                                         aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <p>Are you sure you want to make the reel
-                                    <strong>{{ reel.reel_number }}</strong> used?</p>
+                                <p>Are you sure you want to make the reel <strong>{{ reel.reel_number }}</strong> used?
+                                </p>
                             </div>
                             <div class="modal-footer">
-                                <form method="post" action="{% url 'Corrugation:delete_reel' reel.id %}">
+                                <form method="post"
+                                      action="{% url 'Corrugation:delete_reel' reel.id %}?next={{ request.get_full_path }}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger">Make Used</button>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                        Cancel
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel
                                     </button>
                                 </form>
                             </div>
@@ -288,15 +288,15 @@
                                         aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <p>Are you sure you want to make the reel
-                                    <strong>{{ reel.reel_number }}</strong> Un used?</p>
+                                <p>Are you sure you want to make the reel <strong>{{ reel.reel_number }}</strong> Un
+                                    used?</p>
                             </div>
                             <div class="modal-footer">
-                                <form method="post" action="{% url 'Corrugation:restore_reel' reel.id %}">
+                                <form method="post"
+                                      action="{% url 'Corrugation:restore_reel' reel.id %}?next={{ request.get_full_path }}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger">Make Un Used</button>
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                        Cancel
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel
                                     </button>
                                 </form>
                             </div>
