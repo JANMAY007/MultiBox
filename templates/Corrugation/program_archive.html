@@ -12,7 +12,7 @@
             </div>
         {% endfor %}
         <script>
-            setTimeout(function() {
+            setTimeout(function () {
                 bootstrap.Alert.getOrCreateInstance(document.querySelector(".alert")).close();
             }, 2500)
         </script>
@@ -20,29 +20,34 @@
     {% for program in programs %}
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="text-primary m-0 fw-bold">
+                <div class="row d-flex justify-content-between align-items-center">
+                    <h5 class="col-md-2 text-primary m-0 fw-bold">
                         Product name - {{ program.product_name }}
                     </h5>
-                    <div class="flex-grow-1 text-center">
+                    <div class="col-md-2 flex-grow-1 text-center">
                         <h5 class="text-secondary">Quantity - {{ program.program_quantity }}</h5>
                     </div>
-                    <h5 class="m-0 fw-bold">
+                    <h5 class="col-md-2 m-0 fw-bold">
                         <span>{{ program.program_date }}</span>
                     </h5>
                 </div>
             </div>
             <div class="card-body">
                 <!-- Edit and Delete Buttons -->
-                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editProgramModal"
+                <button type="button" class="col-md-2 btn btn-warning" data-bs-toggle="modal"
+                        data-bs-target="#editProgramModal"
                         data-id="{{ program.id }}" data-product_name="{{ program.product_name }}"
                         data-program_quantity="{{ program.program_quantity }}"
                         data-program_date="{{ program.program_date }}" data-program_notes="{{ program.program_notes }}">
                     Edit
                 </button>
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteProgramModal"
+                <button type="button" class="col-md-2 btn btn-danger" data-bs-toggle="modal"
+                        data-bs-target="#deleteProgramModal"
                         data-id="{{ program.id }}">
                     Delete
+                </button>
+                <button type="button" class="col-md-2 btn btn-success share-whatsapp">
+                    Share via WhatsApp
                 </button>
                 <!-- Start: Card Primary -->
                 <div class="card shadow border-start-primary py-2">
@@ -157,4 +162,39 @@
             </div>
         </div>
     {% endfor %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.share-whatsapp').click(function () {
+                var card = $(this).closest('.card');
+
+                // Hide all buttons within the card
+                var buttons = card.find('button');
+                buttons.hide();
+
+                // Use html2canvas to capture the card as an image
+                html2canvas(card[0]).then(function (canvas) {
+                    // Convert the canvas to a data URL
+                    var imageDataUrl = canvas.toDataURL("image/png");
+
+                    // Create a temporary link element
+                    var link = document.createElement('a');
+                    link.href = imageDataUrl;
+                    link.download = 'program.png';
+
+                    // Append the link to the body (necessary for Firefox)
+                    document.body.appendChild(link);
+
+                    // Trigger the download by clicking the link
+                    link.click();
+
+                    // Remove the link from the document
+                    document.body.removeChild(link);
+
+                    // Show all buttons again
+                    buttons.show();
+                });
+            });
+        });
+    </script>
 {% endblock %}
