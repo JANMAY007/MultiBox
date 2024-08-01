@@ -16,7 +16,6 @@ class Tenant(models.Model):
     tenant_gst_number = models.CharField(max_length=15, null=True, blank=True)
     active = models.BooleanField(default=True)
     tenant_logo = models.ImageField(upload_to=tenant_logo_path)
-    amount_decided = models.FloatField(null=True, blank=True)
     email = models.EmailField()
     email_verified = models.BooleanField(default=False)
     phone = models.CharField(max_length=15)
@@ -26,7 +25,7 @@ class Tenant(models.Model):
     object = models.manager
 
     def __str__(self):
-        return f'{self.name} - {self.amount_decided}'
+        return f'{self.name}'
 
 
 class TenantAddress(models.Model):

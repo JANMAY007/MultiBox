@@ -3,16 +3,28 @@ from .models import (Tenant, TenantEmployees, TenantGeneralInfo,
                      TenantAddress, TenantBuyers)
 
 
-class TenantEmployeesInline(admin.TabularInline):
+class TenantAddressInline(admin.StackedInline):
+    model = TenantAddress
+    extra = 0
+
+
+class TenantGeneralInfoInline(admin.StackedInline):
+    model = TenantGeneralInfo
+    extra = 0
+
+
+class TenantEmployeesInline(admin.StackedInline):
     model = TenantEmployees
     extra = 1
 
 
+class TenantBuyersInline(admin.StackedInline):
+    model = TenantBuyers
+    extra = 1
+
+
 class TenantAdmin(admin.ModelAdmin):
-    inlines = [TenantEmployeesInline]
+    inlines = [TenantAddressInline, TenantGeneralInfo, TenantEmployeesInline, TenantBuyersInline]
 
 
 admin.site.register(Tenant, TenantAdmin)
-admin.site.register(TenantGeneralInfo)
-admin.site.register(TenantAddress)
-admin.site.register(TenantBuyers)
