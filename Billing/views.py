@@ -30,7 +30,7 @@ def add_challan(request):
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Tenant:register_tenant')
-# bundles of first product are being saved and rest are not being saved
+
     if request.method == 'POST':
         challan = Challan(
             tenant=tenant,
@@ -54,25 +54,32 @@ def add_challan(request):
         bundle_index = 0
 
         for i in range(len(products)):
-            challan_item = ChallanItem(
-                challan=challan,
-                challan_po=PurchaseOrder.objects.get(po_number=products[i]),
-                quantity=quantities[i],
-                remarks=remarks[i]
-            )
+            purchase_orders = PurchaseOrder.objects.filter(po_number=products[i])
+            if not purchase_orders.exists():
+                messages.error(request, f'No purchase order found for {products[i]}')
+                return redirect('Billing:add_challan')
 
-            bundles = []
-            while bundle_index < len(bundle_sizes) and bundle_sizes[bundle_index]:
-                bundles.append({
-                    'size': bundle_sizes[bundle_index],
-                    'quantity': bundle_quantities[bundle_index]
-                })
-                bundle_index += 1
-                if bundle_index % 3 == 0:
-                    break
+            for po in purchase_orders:
+                challan_item = ChallanItem(
+                    challan=challan,
+                    challan_po=po,
+                    quantity=quantities[i],
+                    remarks=remarks[i]
+                )
 
-            challan_item.bundles = bundles
-            challan_item.save()
+                bundles = []
+                while bundle_index < len(bundle_sizes):
+                    if bundle_sizes[bundle_index] == '':
+                        bundle_index += 1
+                        break
+                    bundles.append({
+                        'size': bundle_sizes[bundle_index],
+                        'quantity': bundle_quantities[bundle_index]
+                    })
+                    bundle_index += 1
+
+                challan_item.bundles = bundles
+                challan_item.save()
 
         messages.success(request, 'Challan added successfully')
         return redirect('Billing:challans')
