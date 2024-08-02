@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment</title>
+</head>
+<body>
+
+<form method="POST">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        var options = {
+            key: "{{ razorpay_key }}",
+            amount: "{{ amount }}",
+            currency: "INR",
+            name: "{{ order_name }}",
+            description: "{{ description }}",
+            image: "{{ image }}",
+            order_id: "{{ provider_order_id }}",
+            callback_url: "{{ callback_url }}",
+            redirect: true,
+            prefill: {
+                "name": "Vaibhav Paliwal",
+                "email": "business@solvifyhub.com",
+                "contact": "7788994455"
+            },
+            notes: {
+                "address": "Solvify Hub Digi Office"
+            },
+            theme: {
+                "color": "#3399cc"
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+    </script>
+</form>
+
+</body>
+</html>
