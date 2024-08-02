@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.shortcuts import render, redirect
-from .models import Tenant, TenantEmployees, TenantAddress, TenantGeneralInfo
+from .models import Tenant, TenantEmployees, TenantAddress, TenantGeneralInfo, TenantPlan
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
@@ -90,6 +90,109 @@ def get_tenant_for_user(request):
             return None
 
 
+def plan_info_dict(plan):
+    plan_dict = {}
+    if plan == 'm_s':
+        plan_dict = {
+            'stock_management_and_history': False,
+            'smart_bulk_reel_addition': False,
+            'reel_filtering': False,
+            'reel_stocks_and_order_management': False,
+            'products_management': True,
+            'products_filtering': False,
+            'production_line_handling': True,
+            'daily_program_management': True,
+            'daily_program_sharing': False,
+            'purchase_order_management': True,
+            'monthly_report': False,
+            'database_copy': False,
+            'amount': 2000,
+        }
+    elif plan == 'm_e':
+        plan_dict = {
+            'stock_management_and_history': True,
+            'smart_bulk_reel_addition': True,
+            'reel_filtering': True,
+            'reel_stocks_and_order_management': True,
+            'products_management': True,
+            'products_filtering': True,
+            'production_line_handling': True,
+            'daily_program_management': True,
+            'daily_program_sharing': True,
+            'purchase_order_management': True,
+            'monthly_report': True,
+            'database_copy': True,
+            'amount': 4000,
+        }
+    elif plan == 'y_s':
+        plan_dict = {
+            'stock_management_and_history': False,
+            'smart_bulk_reel_addition': False,
+            'reel_filtering': False,
+            'reel_stocks_and_order_management': False,
+            'products_management': True,
+            'products_filtering': False,
+            'production_line_handling': True,
+            'daily_program_management': True,
+            'daily_program_sharing': False,
+            'purchase_order_management': True,
+            'monthly_report': False,
+            'database_copy': False,
+            'amount': 20000,
+        }
+    elif plan == 'y_e':
+        plan_dict = {
+            'stock_management_and_history': True,
+            'smart_bulk_reel_addition': True,
+            'reel_filtering': True,
+            'reel_stocks_and_order_management': True,
+            'products_management': True,
+            'products_filtering': True,
+            'production_line_handling': True,
+            'daily_program_management': True,
+            'daily_program_sharing': True,
+            'purchase_order_management': True,
+            'monthly_report': True,
+            'database_copy': True,
+            'amount': 40000,
+        }
+    return plan_dict
+
+
 @login_required
 def tenant_plans(request):
-    return render(request, 'Tenant/tenant_plans.html')
+    tenant = get_tenant_for_user(request)
+    if tenant is None:
+        messages.error(request, 'You are not associated with any tenant.')
+        return redirect('Tenant:register_tenant')
+    if request.method == 'POST':
+        plan_type = request.POST.get('plan_type')
+        plan_time = request.POST.get('plan_time')
+        plan = plan_info_dict(plan_type)
+        tenant_plan = TenantPlan.objects.create(
+            tenant=tenant,
+            name=plan_type,
+            stock_management_and_history=plan['stock_management_and_history'],
+            smart_bulk_reel_addition=plan['smart_bulk_reel_addition'],
+            reel_filtering=plan['reel_filtering'],
+            reels_stocks_and_order_management=plan['reel_stocks_and_order_management'],
+            products_management=plan['products_management'],
+            products_filtering=plan['products_filtering'],
+            production_line_handling=plan['production_line_handling'],
+            daily_program_management=plan['daily_program_management'],
+            daily_program_sharing=plan['daily_program_sharing'],
+            purchase_order_management=plan['purchase_order_management'],
+            monthly_report=plan['monthly_report'],
+            database_copy=plan['database_copy'],
+            active=True,
+            active_till=plan_time,
+            amount=plan['amount'],
+        )
+        return redirect('Payments:plan_purchase_payment', plan_id=tenant_plan.id)
+    tenant_plan = TenantPlan.objects.filter(tenant=tenant, active=True)
+    context = {
+        'exists': tenant_plan.exists(),
+        'is_active': tenant_plan.exists() and tenant_plan.first().active,
+        'plan_type': tenant_plan.first().name if tenant_plan.exists() else None,
+    }
+    return render(request, 'Tenant/tenant_plans.html', context)

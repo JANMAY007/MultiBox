@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'Corrugation.apps.CorrugationConfig',
     'Billing.apps.BillingConfig',
     'Tenant.apps.TenantConfig',
+    'Payments.apps.PaymentsConfig',
     'allauth_ui',
     'allauth',
     'allauth.account',

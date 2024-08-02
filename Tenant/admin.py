@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (Tenant, TenantEmployees, TenantGeneralInfo,
-                     TenantAddress, TenantBuyers)
+                     TenantAddress, TenantBuyers, TenantPlan)
 
 
 class TenantAddressInline(admin.StackedInline):
@@ -24,7 +24,15 @@ class TenantBuyersInline(admin.StackedInline):
 
 
 class TenantAdmin(admin.ModelAdmin):
-    inlines = [TenantAddressInline, TenantGeneralInfo, TenantEmployeesInline, TenantBuyersInline]
+    inlines = [TenantAddressInline, TenantGeneralInfoInline, TenantEmployeesInline, TenantBuyersInline]
+    list_display = ['name', 'owner', 'tenant_gst_number', 'active', 'email', 'phone']
 
 
 admin.site.register(Tenant, TenantAdmin)
+
+
+class TenantPlanAdmin(admin.ModelAdmin):
+    list_display = ['tenant', 'active_till', 'active']
+
+
+admin.site.register(TenantPlan, TenantPlanAdmin)

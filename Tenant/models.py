@@ -24,9 +24,6 @@ class Tenant(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     object = models.manager
 
-    def __str__(self):
-        return f'{self.name}'
-
 
 class TenantAddress(models.Model):
     class Meta:
@@ -45,9 +42,6 @@ class TenantAddress(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     object = models.manager
 
-    def __str__(self):
-        return f'{self.tenant.name} - {self.city}'
-
 
 class TenantEmployees(models.Model):
     class Meta:
@@ -59,9 +53,6 @@ class TenantEmployees(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     object = models.manager
-
-    def __str__(self):
-        return f'{self.user.username}'
 
 
 class TenantGeneralInfo(models.Model):
@@ -82,9 +73,6 @@ class TenantGeneralInfo(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     object = models.manager
 
-    def __str__(self):
-        return f'{self.tenant}'
-
 
 class TenantBuyers(models.Model):
     class Meta:
@@ -98,3 +86,37 @@ class TenantBuyers(models.Model):
 
     def __str__(self):
         return f'{self.tenant} - {self.buyer_name}'
+
+
+class TenantPlan(models.Model):
+    class Meta:
+        verbose_name = 'Tenant Plan'
+        verbose_name_plural = 'Tenant Plans'
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+    PLAN_CHOICES = [
+        ('m_s', 'Standard Monthly'),
+        ('m_e', 'Enterprise Monthly'),
+        ('y_s', 'Standard Yearly'),
+        ('y_e', 'Enterprise Yearly'),
+    ]
+    name = models.CharField(max_length=50, choices=PLAN_CHOICES, unique=True)
+    # True with history and false without history
+    stock_management_and_history = models.BooleanField(default=False)
+    # True with smart addition and false without smart addition
+    smart_bulk_reel_addition = models.BooleanField(default=False)
+    # True with advance filters and false with basic filters
+    reel_filtering = models.BooleanField(default=False)
+    reels_stocks_and_order_management = models.BooleanField(default=False)
+    products_management = models.BooleanField(default=False)
+    products_filtering = models.BooleanField(default=False)
+    production_line_handling = models.BooleanField(default=False)
+    daily_program_management = models.BooleanField(default=False)
+    daily_program_sharing = models.BooleanField(default=False)
+    purchase_order_management = models.BooleanField(default=False)
+    monthly_report = models.BooleanField(default=False)
+    database_copy = models.BooleanField(default=False)
+    active = models.BooleanField(default=True)
+    active_till = models.DateTimeField()
+    amount = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
