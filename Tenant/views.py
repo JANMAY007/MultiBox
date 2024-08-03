@@ -191,8 +191,6 @@ def tenant_plans(request):
         return redirect('Payments:plan_purchase_payment', plan_id=tenant_plan.id)
     tenant_plan = TenantPlan.objects.filter(tenant=tenant, active=True)
     context = {
-        'exists': tenant_plan.exists(),
-        'is_active': tenant_plan.exists() and tenant_plan.first().active,
         'plan_type': tenant_plan.first().name if tenant_plan.exists() else None,
     }
     return render(request, 'Tenant/tenant_plans.html', context)
