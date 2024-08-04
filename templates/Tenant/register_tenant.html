@@ -33,6 +33,11 @@
                                  height="160" alt="Logo">
                         {% endif %}
                         <div class="mb-3">
+                            {% if tenant_logo_url %}
+                            	<label for="tenant_logo">Your Tenant Logo (Uploaded)</label>
+                            {% else %}
+                            	<label for="tenant_logo">Upload Tenant Logo</label>
+                            {% endif %} 
                             <input type="file" name="tenant_logo" class="form-control"
                                    accept="image/jpeg, image/png, image/jpg, image/svg+xml" alt="tenant-logo">
                         </div>
