@@ -128,8 +128,8 @@
                     <tr>
                         <th>#</th>
                         <th>Product</th>
-                        <th>Bundles</th>
-                        <th>Quantity</th>
+                        <th>Bundles(SizeXQuantity)</th>
+                        <th>Total Quantity</th>
                         <th>Remarks</th>
                         <th>Action</th>
                     </tr>
@@ -151,12 +151,11 @@
                             <div class="bundle-container">
                                 <div class="bundle row">
                                     <div class="col">
-                                        <label>Size:</label>
                                         <input type="text" class="form-control" name="bundle_size[]">
                                     </div>
                                     <div class="col">
-                                        <label>Quantity:</label>
-                                        <input type="number" class="form-control" name="bundle_quantity[]" oninput="updateTotalQuantity(this)">
+                                        <input type="number" class="form-control" name="bundle_quantity[]"
+                                               oninput="updateTotalQuantity(this)">
                                     </div>
                                 </div>
                             </div>
@@ -185,7 +184,7 @@
                         <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </div>
-                
+
                 <div class="signatures">
                     <div class="signature-block">
                         <p>Supplier Signature</p>
@@ -206,34 +205,32 @@
 
             let row = table.insertRow(rowCount);
             row.innerHTML = `<td>${rowCount + 1}</td>
-                             <td>
-                                 <select class="form-control" name="product[]">
-                                     {% for purchase_order in purchase_orders %}
-                                         <option value="{{ purchase_order.po_number }}">
-                                            {{ purchase_order.po_number }} ->
-                {{ purchase_order.product_name__product_name }}
-                                         </option>
-                                     {% endfor %}
-                                 </select>
-                             </td>
-                             <td>
-                                 <div class="bundle-container">
-                                     <div class="bundle row">
-                                         <div class="col">
-                                             <label>Size:</label>
-                                             <input type="text" class="form-control" name="bundle_size[]">
-                                         </div>
-                                         <div class="col">
-                                             <label>Quantity:</label>
-                                             <input type="number" class="form-control" name="bundle_quantity[]" oninput="updateTotalQuantity(this)">
-                                         </div>
+                         <td>
+                             <select class="form-control" name="product[]">
+                                 {% for purchase_order in purchase_orders %}
+                                     <option value="{{ purchase_order.po_number }}">
+                                        {{ purchase_order.po_number }} ->
+                                        {{ purchase_order.product_name__product_name }}
+                                     </option>
+                                 {% endfor %}
+                             </select>
+                         </td>
+                         <td>
+                             <div class="bundle-container">
+                                 <div class="bundle row">
+                                     <div class="col">
+                                         <input type="text" class="form-control" name="bundle_size[]">
+                                     </div>
+                                     <div class="col">
+                                         <input type="number" class="form-control" name="bundle_quantity[]" oninput="updateTotalQuantity(this)">
                                      </div>
                                  </div>
-                                 <button type="button" class="btn btn-primary btn-sm add-bundle">Add Bundle</button>
-                             </td>
-                             <td><input type="number" class="form-control" name="quantity[]"></td>
-                             <td><input type="text" class="form-control" name="remarks[]"></td>
-                             <td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>`;
+                             </div>
+                             <button type="button" class="btn btn-primary btn-sm add-bundle">Add Bundle</button>
+                         </td>
+                         <td><input type="number" class="form-control" name="quantity[]"></td>
+                         <td><input type="text" class="form-control" name="remarks[]"></td>
+                         <td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>`;
 
             attachRemoveRowEvent(row.querySelector('.remove-row'));
             attachAddBundleEvent(row.querySelector('.add-bundle'));
@@ -256,13 +253,11 @@
                 let newBundle = document.createElement('div');
                 newBundle.className = 'bundle row';
                 newBundle.innerHTML = `<div class="col">
-                                           <label>Size:</label>
-                                           <input type="text" class="form-control" name="bundle_size[]">
-                                       </div>
-                                       <div class="col">
-                                           <label>Quantity:</label>
-                                           <input type="number" class="form-control" name="bundle_quantity[]" oninput="updateTotalQuantity(this)">
-                                       </div>`;
+                                       <input type="text" class="form-control" name="bundle_size[]">
+                                   </div>
+                                   <div class="col">
+                                       <input type="number" class="form-control" name="bundle_quantity[]" oninput="updateTotalQuantity(this)">
+                                   </div>`;
 
                 bundleContainer.appendChild(newBundle);
             });

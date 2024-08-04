@@ -25,6 +25,7 @@ class DispatchInline(admin.StackedInline):
 
 class PurchaseOrderAdmin(admin.ModelAdmin):
     inlines = [DispatchInline]
+    list_filter = ['product_name', 'po_number', 'po_date']
 
 
 admin.site.register(PurchaseOrder, PurchaseOrderAdmin)

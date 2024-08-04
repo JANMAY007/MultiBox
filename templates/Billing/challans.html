@@ -52,20 +52,37 @@
         .terms {
             margin-top: 10px;
         }
+
+        .signatures {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 40px;
+        }
+
+        .signature-block {
+            text-align: center;
+            width: 45%;
+            border-top: 1px solid #000;
+            padding-top: 10px;
+        }
     </style>
     <div class="container mt-5">
-        <div class="accordion" id="challanAccordion">
+        <div class="accordion accordion-flush" id="challanAccordion">
             {% for challan in challans %}
                 <div class="card">
                     <div class="card-header" id="heading-{{ challan.id }}">
                         <h2 class="mb-0 d-flex justify-content-between">
-                            <button class="btn btn-outline-primary accordion-button" type="button" data-toggle="collapse" data-target="#collapse-{{ challan.id }}" aria-expanded="true" aria-controls="collapse-{{ challan.id }}">
+                            <button class="btn btn-outline-primary accordion-button" type="button"
+                                    data-toggle="collapse" data-target="#collapse-{{ challan.id }}" aria-expanded="true"
+                                    aria-controls="collapse-{{ challan.id }}">
                                 Challan Number: {{ challan.challan_no }}
                             </button>
                             <button id="download-{{ challan.id }}" class="btn btn-outline-primary">Download PDF</button>
                         </h2>
                     </div>
-                    <div id="collapse-{{ challan.id }}" class="collapse" aria-labelledby="heading-{{ challan.id }}" data-parent="#challanAccordion">
+                    <div id="collapse-{{ challan.id }}" class="collapse" aria-labelledby="heading-{{ challan.id }}"
+                         data-parent="#challanAccordion">
                         <div class="card-body">
                             <div id="invoice-{{ challan.id }}" class="invoice">
                                 <div class="invoice-header d-flex justify-content-between">
@@ -125,13 +142,13 @@
                                     <div class="col-md-6">
                                         <h5>Bill To</h5>
                                         <span>
-                                            {{ challan.billing_to }}
+                                            {{ challan.billing_to|linebreaks }}
                                         </span>
                                     </div>
                                     <div class="col-md-6 text-md-right">
                                         <h5>Ship To</h5>
                                         <span>
-                                            {{ challan.shipping_to }}
+                                            {{ challan.shipping_to|linebreaks }}
                                         </span>
                                     </div>
                                 </div>
@@ -156,7 +173,7 @@
                                                         <div>{{ bundle.size }}X{{ bundle.quantity }}</div>
                                                     {% endfor %}
                                                 </td>
-                                                <td>{{ item.quantity }}</td>
+                                                <td>{{ item.total_quantity }}</td>
                                                 <td>{{ item.remarks }}</td>
                                             </tr>
                                         {% endif %}
@@ -165,6 +182,14 @@
                                 </table>
                                 <div class="terms">
                                     <p><strong>Notes</strong><br>{{ challan.challan_note }}</p>
+                                </div>
+                                <div class="signatures">
+                                    <div class="signature-block">
+                                        <p>Supplier Signature</p>
+                                    </div>
+                                    <div class="signature-block">
+                                        <p>Buyer Signature</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

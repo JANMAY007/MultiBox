@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import Challan, ChallanItem
 from django.contrib import messages
@@ -6,6 +7,7 @@ from Corrugation.models import PurchaseOrder, Tenant
 from Tenant.models import TenantAddress
 
 
+@login_required
 def challans(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
@@ -25,64 +27,64 @@ def challans(request):
     return render(request, 'Billing/challans.html', context)
 
 
+@login_required
 def add_challan(request):
     tenant = get_tenant_for_user(request)
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Tenant:register_tenant')
 
-    if request.method == 'POST':
-        challan = Challan(
-            tenant=tenant,
-            order_no=request.POST.get('order_no'),
-            order_date=request.POST.get('order_date'),
-            challan_no=request.POST.get('challan_no'),
-            challan_date=request.POST.get('challan_date'),
-            billing_to=request.POST.get('billing_to'),
-            shipping_to=request.POST.get('shipping_to'),
-            vehicle_no=request.POST.get('vehicle_no'),
-            challan_note=request.POST.get('challan_note')
-        )
-        challan.save()
+    if request.method == "POST":
+        print(request.POST)
+        challan_no = request.POST.get('challan_no')
+        challan_date = request.POST.get('challan_date')
+        order_no = request.POST.get('order_no')
+        order_date = request.POST.get('order_date')
+        vehicle_no = request.POST.get('vehicle_no')
+        billing_to = request.POST.get('billing_to')
+        shipping_to = request.POST.get('shipping_to')
+        challan_note = request.POST.get('challan_note')
 
-        products = request.POST.getlist('product[]')
-        quantities = request.POST.getlist('quantity[]')
-        remarks = request.POST.getlist('remarks[]')
+        challan = Challan.objects.create(
+            tenant=tenant,
+            challan_no=challan_no,
+            challan_date=challan_date,
+            order_no=order_no,
+            order_date=order_date,
+            vehicle_no=vehicle_no,
+            billing_to=billing_to,
+            shipping_to=shipping_to,
+            challan_note=challan_note
+        )
+
+        product_ids = request.POST.getlist('product[]')
         bundle_sizes = request.POST.getlist('bundle_size[]')
         bundle_quantities = request.POST.getlist('bundle_quantity[]')
+        quantities = request.POST.getlist('quantity[]')
+        remarks = request.POST.getlist('remarks[]')
 
-        bundle_index = 0
+        for i in range(len(product_ids)):
+            product_id = product_ids[i]
+            quantity = quantities[i]
+            remark = remarks[i]
+            bundles = []
 
-        for i in range(len(products)):
-            purchase_orders = PurchaseOrder.objects.filter(po_number=products[i])
-            if not purchase_orders.exists():
-                messages.error(request, f'No purchase order found for {products[i]}')
-                return redirect('Billing:add_challan')
+            for j in range(len(bundle_sizes)):
+                if j % len(product_ids) == i:
+                    bundle_size = bundle_sizes[j]
+                    bundle_quantity = bundle_quantities[j]
+                    bundles.append({'size': bundle_size, 'quantity': bundle_quantity})
+            po = PurchaseOrder.objects.get(po_number=product_id)
+            ChallanItem.objects.create(
+                challan=challan,
+                challan_po=po,
+                total_quantity=quantity,
+                remarks=remark,
+                bundles=bundles
+            )
 
-            for po in purchase_orders:
-                challan_item = ChallanItem(
-                    challan=challan,
-                    challan_po=po,
-                    quantity=quantities[i],
-                    remarks=remarks[i]
-                )
-
-                bundles = []
-                while bundle_index < len(bundle_sizes):
-                    if bundle_sizes[bundle_index] == '':
-                        bundle_index += 1
-                        break
-                    bundles.append({
-                        'size': bundle_sizes[bundle_index],
-                        'quantity': bundle_quantities[bundle_index]
-                    })
-                    bundle_index += 1
-
-                challan_item.bundles = bundles
-                challan_item.save()
-
-        messages.success(request, 'Challan added successfully')
-        return redirect('Billing:challans')
+        messages.success(request, "Challan created successfully!")
+        return redirect('Billing:add_challan')
 
     tenant_details = Tenant.objects.get(name=tenant.name)
     tenant_address = TenantAddress.objects.get(tenant__name=tenant.name)

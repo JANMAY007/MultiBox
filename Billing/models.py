@@ -32,7 +32,7 @@ class ChallanItem(models.Model):
     challan = models.ForeignKey(Challan, on_delete=models.CASCADE)
     challan_po = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
     bundles = models.JSONField(default=dict)
-    quantity = models.IntegerField()
+    total_quantity = models.IntegerField()
     remarks = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
