@@ -20,9 +20,6 @@ class Challan(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     object = models.manager
 
-    def __str__(self):
-        return f'{self.tenant.name} - {self.challan_no}'
-
 
 class ChallanItem(models.Model):
     class Meta:
@@ -37,6 +34,3 @@ class ChallanItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     object = models.manager
-
-    def __str__(self):
-        return f'{self.challan.challan_no}'

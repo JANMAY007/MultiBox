@@ -3,7 +3,13 @@ from .models import (PaperReels, Product, Partition, PurchaseOrder, Dispatch,
                      Program, Production, ProductionReels, Stock)
 
 
-admin.site.register(PaperReels)
+class PaperReelAdmin(admin.ModelAdmin):
+    model = PaperReels
+    list_display = ['tenant', 'supplier', 'reel_number']
+    list_filter = ['tenant', 'supplier', 'reel_number', 'weight']
+
+
+admin.site.register(PaperReels, PaperReelAdmin)
 
 
 class PartitionInline(admin.TabularInline):
@@ -13,6 +19,8 @@ class PartitionInline(admin.TabularInline):
 
 class ProductAdmin(admin.ModelAdmin):
     inlines = [PartitionInline]
+    list_display = ['tenant__name', 'product_name']
+    list_filter = ['tenant__name', 'product_name']
 
 
 admin.site.register(Product, ProductAdmin)
@@ -25,11 +33,41 @@ class DispatchInline(admin.StackedInline):
 
 class PurchaseOrderAdmin(admin.ModelAdmin):
     inlines = [DispatchInline]
+    list_display = ['product_name', 'po_number', 'po_date']
     list_filter = ['product_name', 'po_number', 'po_date']
 
 
 admin.site.register(PurchaseOrder, PurchaseOrderAdmin)
-admin.site.register(Program)
-admin.site.register(Production)
-admin.site.register(ProductionReels)
-admin.site.register(Stock)
+
+
+class ProgramAdmin(admin.ModelAdmin):
+    model = Program
+    list_display = ['product__tenant', 'program_date']
+    list_filter = ['product__tenant', 'product__product_name', 'program_date']
+
+
+admin.site.register(Program, ProgramAdmin)
+
+
+class ProductionReelInline(admin.StackedInline):
+    model = ProductionReels
+    extra = 1
+
+
+class ProductionAdmin(admin.ModelAdmin):
+    inlines = [ProductionReelInline]
+    model = Production
+    list_display = ['product', 'production_date']
+    list_filter = ['product__tenant', 'product__product_name', 'production_date']
+
+
+admin.site.register(Production, ProductionAdmin)
+
+
+class StockAdmin(admin.ModelAdmin):
+    model = Stock
+    list_display = ['product', 'tag']
+    list_filter = ['product__tenant', 'product', 'tag']
+
+
+admin.site.register(Stock, StockAdmin)

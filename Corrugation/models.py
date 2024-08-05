@@ -20,9 +20,6 @@ class PaperReels(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     object = models.manager
 
-    def __str__(self):
-        return f'{self.reel_number}'
-
 
 class Product(models.Model):
     class Meta:
@@ -54,9 +51,6 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
 
-    def __str__(self):
-        return f'{self.product_name} - {self.tenant.name}'
-
 
 class Partition(models.Model):
     product_name = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -84,9 +78,6 @@ class Partition(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     object = models.manager
 
-    def __str__(self):
-        return f'{self.product_name} - {self.partition_type}'
-
 
 class PurchaseOrder(models.Model):
     class Meta:
@@ -104,9 +95,6 @@ class PurchaseOrder(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
 
-    def __str__(self):
-        return f'{self.product_name} - {self.po_date} - {self.po_number}'
-
 
 class Dispatch(models.Model):
     class Meta:
@@ -119,9 +107,6 @@ class Dispatch(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
-
-    def __str__(self):
-        return f'{self.po} - {self.dispatch_date}'
 
 
 class Program(models.Model):
@@ -137,9 +122,6 @@ class Program(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
 
-    def __str__(self):
-        return f'{self.program_date}'
-
 
 class Production(models.Model):
     class Meta:
@@ -153,9 +135,6 @@ class Production(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
 
-    def __str__(self):
-        return f'{self.product} - {self.production_date}'
-
 
 class ProductionReels(models.Model):
     class Meta:
@@ -166,9 +145,6 @@ class ProductionReels(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
-
-    def __str__(self):
-        return f'{self.production} - {self.reel}'
 
 
 class Stock(models.Model):
@@ -188,6 +164,3 @@ class Stock(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager
-
-    def __str__(self):
-        return f'{self.product} - {self.stock_quantity}'

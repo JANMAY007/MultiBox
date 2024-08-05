@@ -84,9 +84,6 @@ class TenantBuyers(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     object = models.manager
 
-    def __str__(self):
-        return f'{self.tenant} - {self.buyer_name}'
-
 
 class TenantPlan(models.Model):
     class Meta:
