@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.http import JsonResponse
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
@@ -135,7 +135,10 @@ def summary(request):
     if tenant is None:
         messages.error(request, 'You are not associated with any tenant.')
         return redirect('Tenant:register_tenant')
-    paper_reel_summary = PaperReels.objects.filter(tenant=tenant).values('size', 'gsm', 'bf').annotate(total_weight=Sum('weight'))
+    paper_reel_summary = PaperReels.objects.filter(tenant=tenant).values('size', 'gsm', 'bf').annotate(
+        total_weight=Sum('weight'),
+        total_reels=Count('id'),
+    )
     context = {
         'paper_reel_summary': paper_reel_summary,
         'total_reels': PaperReels.objects.filter(used=False).count(),
