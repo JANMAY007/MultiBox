@@ -154,12 +154,26 @@ def add_purchase_orders_to_products():
             random_po_data(product, num_pos)
 
 
+def add_dispatch_to_purchase_orders():
+    purchase_orders = PurchaseOrder.objects.all()
+    for po in purchase_orders:
+        random_dispatches = random.randint(1, 5)
+        for _ in range(random_dispatches):
+            random_time_delta = timedelta(days=random.randint(0, 30))
+            Dispatch.objects.create(
+                po=po,
+                dispatch_date=po.po_date + random_time_delta,
+                dispatch_quantity=random.randint(50, 500),
+            )
+
+
 if __name__ == '__main__':
-    create_paper_reels(100)
-    create_products(100)
-    add_partitions_to_products()
-    create_productions(100)
-    create_production_reels(100)
-    create_stock(100)
-    add_purchase_orders_to_products()
+    # create_paper_reels(100)
+    # create_products(100)
+    # add_partitions_to_products()
+    # create_productions(100)
+    # create_production_reels(100)
+    # create_stock(100)
+    # add_purchase_orders_to_products()
+    add_dispatch_to_purchase_orders()
     print("Sample data created successfully.")
