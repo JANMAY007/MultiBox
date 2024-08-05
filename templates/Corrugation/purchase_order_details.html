@@ -17,17 +17,28 @@
             }, 2500)
         </script>
     {% endif %}
-    <!-- Search Input Field -->
-    <label for="searchInput">Search by Product Name:</label>
-    <input type="text" id="searchInput" placeholder="Search by Product Name" class="form-control mb-3">
+    <style>
+        .card {
+            transition: all 0.3s ease;
+        }
 
+        .hidden {
+            display: none !important;
+        }
+    </style>
+    <!-- Search Input Field -->
+    <label>
+        <input type="text" id="searchInput" placeholder="Search by Product Name" class="form-control mb-3">
+    </label>
     <!-- Loop through each purchase order and display them as cards -->
     {% for purchase_order in purchase_orders %}
         <!-- Start: Basic Card -->
-        <div class="card shadow mb-4" data-product-name="{{ purchase_order.product_name }}">
+        <div class="card shadow mb-4 products">
             <div class="card-header py-3">
-                <h6 class="text-primary m-0 fw-bold">Product name - {{ purchase_order.product_name.product_name }}<span
-                        class="float-end">{{ purchase_order.po_date }}</span></h6>
+                <h6 class="text-primary m-0 fw-bold">
+                    Product name - <span class="product-name">{{ purchase_order.product_name.product_name }}</span>
+                    <span class="float-end">{{ purchase_order.po_date }}</span>
+                </h6>
             </div>
             <div class="card-body">
                 <!-- Start: Card Primary -->
@@ -175,28 +186,15 @@
 
     <!-- JavaScript for Filtering Products -->
     <script>
-        // Get the input field and declare a variable to store search text
-        const searchInput = document.getElementById('searchInput');
-        let search_text = '';
-
-        // Add an event listener to capture input in the search bar
-        searchInput.addEventListener('input', function (event) {
-            // Update the search_text variable with the input value
-            search_text = event.target.value.trim().toLowerCase();
-
-            // Get all cards
-            const cards = document.querySelectorAll('.card');
-
-            // Loop through each card and check if product name contains search text
-            cards.forEach(card => {
-                // Get the product name from card's data attribute
-                const productName = card.getAttribute('data-product-name').toLowerCase();
-
-                // If product name contains search text, show the card, otherwise hide it
-                if (productName.includes(search_text)) {
-                    card.classList.remove('d-none');
+        document.getElementById('searchInput').addEventListener('input', function () {
+            var query = this.value.toLowerCase();
+            var products = document.querySelectorAll('.products');
+            products.forEach(function (product) {
+                var productName = product.querySelector('.product-name').textContent.toLowerCase();
+                if (productName.includes(query)) {
+                    product.classList.remove('hidden');
                 } else {
-                    card.classList.add('d-none');
+                    product.classList.add('hidden');
                 }
             });
         });
