@@ -113,7 +113,7 @@ class TenantPlan(models.Model):
     monthly_report = models.BooleanField(default=False)
     database_copy = models.BooleanField(default=False)
     active = models.BooleanField(default=True)
-    active_till = models.DateTimeField()
+    active_till = models.DateTimeField(blank=True, null=True)
     amount = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

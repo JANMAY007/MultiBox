@@ -167,7 +167,6 @@ def tenant_plans(request):
         return redirect('Tenant:register_tenant')
     if request.method == 'POST':
         plan_type = request.POST.get('plan_type')
-        plan_time = request.POST.get('plan_time')
         plan = plan_info_dict(plan_type)
         tenant_plan = TenantPlan.objects.create(
             tenant=tenant,
@@ -185,12 +184,22 @@ def tenant_plans(request):
             monthly_report=plan['monthly_report'],
             database_copy=plan['database_copy'],
             active=True,
-            active_till=plan_time,
             amount=plan['amount'],
         )
+        if request.POST.get('upgrade'):
+            tenant_plan.active = False
+            tenant_plan.save()
+            messages.success(request, 'Plan Will be active after current plan.')
+            return redirect('Payments:plan_purchase_payment', plan_id=tenant_plan.id, update=True)
+        tenant_plan.save()
+        messages.success(request, 'Plan Purchased Successfully.')
         return redirect('Payments:plan_purchase_payment', plan_id=tenant_plan.id)
     tenant_plan = TenantPlan.objects.filter(tenant=tenant, active=True)
+    next_tenant_plan = TenantPlan.objects.filter(tenant=tenant, active=False,
+                                                 active_till__gt=tenant_plan.values('active_till')
+                                                 ).exists()
     context = {
         'plan_type': tenant_plan.first().name if tenant_plan.exists() else None,
+        'next_plan': next_tenant_plan,
     }
     return render(request, 'Tenant/tenant_plans.html', context)

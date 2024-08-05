@@ -98,7 +98,11 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    {% if plan_type == 'm_s' or plan_type == 'y_s' %}
+                                    {% if next_plan %}
+                                        <button class="btn btn-primary d-block w-100" type="submit" disabled>
+                                            Already Have Next Plan
+                                        </button>
+                                    {% elif plan_type == 'm_s' or plan_type == 'y_s' %}
                                         <button class="btn btn-primary d-block w-100" type="submit" disabled>
                                             Currently Active
                                         </button>
@@ -218,7 +222,11 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    {% if plan_type == 'm_s' or plan_type == 'y_s' %}
+                                    {% if next_plan %}
+                                        <button class="btn btn-primary d-block w-100" type="submit" disabled>
+                                            Already Have Next Plan
+                                        </button>
+                                    {% elif plan_type == 'm_s' or plan_type == 'y_s' %}
                                         <button class="btn btn-primary d-block w-100" type="submit">
                                             Upgrade to this Plan
                                         </button>
@@ -299,7 +307,11 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    {% if plan_type == 'm_s' or plan_type == 'y_s' %}
+                                    {% if next_plan %}
+                                        <button class="btn btn-primary d-block w-100" type="submit" disabled>
+                                            Already Have Next Plan
+                                        </button>
+                                    {% elif plan_type == 'm_s' or plan_type == 'y_s' %}
                                         <button class="btn btn-primary d-block w-100" type="submit" disabled>
                                             Currently Active
                                         </button>
@@ -411,7 +423,11 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    {% if plan_type == 'm_s' or plan_type == 'y_s' %}
+                                    {% if next_plan %}
+                                        <button class="btn btn-primary d-block w-100" type="submit" disabled>
+                                            Already Have Next Plan
+                                        </button>
+                                    {% elif plan_type == 'm_s' or plan_type == 'y_s' %}
                                         <button class="btn btn-primary d-block w-100" type="submit">
                                             Upgrade to this Plan
                                         </button>
