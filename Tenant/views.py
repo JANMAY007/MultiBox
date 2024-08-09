@@ -41,8 +41,6 @@ def register_tenant(request):
                 'program_delete_before_days': request.POST.get('tenant_program_delete_before_days'),
                 'production_delete_before_days': request.POST.get('tenant_production_delete_before_days'),
                 'purchase_order_delete_before_days': request.POST.get('tenant_purchase_order_delete_before_days'),
-                'database_copy': request.POST.get('tenant_database_copy') == 'on',
-                'monthly_report': request.POST.get('tenant_monthly_report') == 'on',
             }
         )
         user = request.user
@@ -69,7 +67,10 @@ def register_tenant(request):
     context = {
         'tenant_address': tenant_address,
         'tenant_info': tenant_info,
-        'tenant_general_info': tenant_general_info
+        'tenant_general_info': tenant_general_info,
+        'tenant_plan_info': TenantPlan.objects.filter(tenant__owner=request.user, active=True, paid=True).values(
+            'monthly_report', 'database_copy', 'name'
+        ).first(),
     }
     return render(request, 'Tenant/register_tenant.html', context)
 

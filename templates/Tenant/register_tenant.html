@@ -106,7 +106,12 @@
                 </div>
                 <div class="card shadow mb-5">
                     <div class="card-header py-3">
-                        <p class="text-primary m-0 fw-bold">Premium Tenant&nbsp;<i class="fas fa-check-double"></i>
+                        <p class="text-primary m-0 fw-bold">
+                            {% if tenant_plan_info.name == "m_s" or "y_s" %}
+                                Standard Tenant&nbsp;<i class="fas fa-check"></i>
+                            {% else %}
+                                Enterprise Tenant&nbsp;<i class="fas fa-check-double"></i>
+                            {% endif %}
                         </p>
                     </div>
                     <div class="card-body">
@@ -114,7 +119,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <div class="form-check form-switch" style="width: 187.656px;">
-                                        {% if tenant_general_info.monthly_report %}
+                                        {% if tenant_plan_info.monthly_report %}
                                             <span class="fas fa-check"></span>
                                         {% else %}
                                             <span class="fas fa-times"></span>
@@ -126,7 +131,7 @@
                             <div class="col">
                                 <div class="mb-3">
                                     <div class="form-check form-switch">
-                                        {% if tenant_general_info.database_copy %}
+                                        {% if tenant_plan_info.database_copy %}
                                             <span class="fas fa-check"></span>
                                         {% else %}
                                             <span class="fas fa-times"></span>

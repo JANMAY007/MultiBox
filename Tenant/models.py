@@ -66,9 +66,6 @@ class TenantGeneralInfo(models.Model):
     program_delete_before_days = models.PositiveSmallIntegerField(default=5)
     production_delete_before_days = models.PositiveSmallIntegerField(default=5)
     purchase_order_delete_before_days = models.PositiveSmallIntegerField(default=15)
-    database_copy = models.BooleanField(default=False)
-    monthly_report = models.BooleanField(default=False)
-    premium = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     object = models.manager

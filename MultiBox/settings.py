@@ -79,7 +79,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'Tenant.context_processors.tenant_logo',
-                'Tenant.context_processors.tenant_premium_check',
             ],
         },
     },
