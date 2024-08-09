@@ -115,5 +115,6 @@ class TenantPlan(models.Model):
     active = models.BooleanField(default=True)
     active_till = models.DateTimeField(blank=True, null=True)
     amount = models.FloatField()
+    paid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

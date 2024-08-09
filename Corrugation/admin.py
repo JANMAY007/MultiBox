@@ -19,7 +19,7 @@ class PartitionInline(admin.TabularInline):
 
 class ProductAdmin(admin.ModelAdmin):
     inlines = [PartitionInline]
-    list_display = ['tenant__name', 'product_name']
+    list_display = ['tenant', 'product_name']
     list_filter = ['tenant__name', 'product_name']
 
 
@@ -42,7 +42,7 @@ admin.site.register(PurchaseOrder, PurchaseOrderAdmin)
 
 class ProgramAdmin(admin.ModelAdmin):
     model = Program
-    list_display = ['product__tenant', 'program_date']
+    list_display = ['product', 'program_date']
     list_filter = ['product__tenant', 'product__product_name', 'program_date']
 
 

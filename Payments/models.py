@@ -15,4 +15,6 @@ class PlanPurchase(models.Model):
     provider_order_id = models.CharField(max_length=40, null=True, blank=True)
     payment_id = models.CharField(max_length=36, null=False, blank=False)
     signature_id = models.CharField(max_length=128, null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     objects = models.manager

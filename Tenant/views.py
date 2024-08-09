@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils import timezone
 from django.shortcuts import render, redirect
 from .models import Tenant, TenantEmployees, TenantAddress, TenantGeneralInfo, TenantPlan
 from django.contrib import messages
@@ -168,6 +169,7 @@ def tenant_plans(request):
     if request.method == 'POST':
         plan_type = request.POST.get('plan_type')
         plan = plan_info_dict(plan_type)
+        current_plan = TenantPlan.objects.filter(tenant=tenant, active=True).first()
         tenant_plan = TenantPlan.objects.create(
             tenant=tenant,
             name=plan_type,
@@ -183,21 +185,25 @@ def tenant_plans(request):
             purchase_order_management=plan['purchase_order_management'],
             monthly_report=plan['monthly_report'],
             database_copy=plan['database_copy'],
-            active=True,
+            active=False,
             amount=plan['amount'],
         )
-        if request.POST.get('upgrade'):
-            tenant_plan.active = False
+        if current_plan:
+            tenant_plan.active_till = current_plan.active_till + timezone.timedelta(
+                days=30 if plan_type.startswith('m_') else 365
+            )
             tenant_plan.save()
-            messages.success(request, 'Plan Will be active after current plan.')
-            return redirect('Payments:plan_purchase_payment', plan_id=tenant_plan.id, update=True)
-        tenant_plan.save()
-        messages.success(request, 'Plan Purchased Successfully.')
+            messages.success(request, 'Plan purchased successfully. It will be active after the current plan expires.')
+        else:
+            tenant_plan.active = True
+            tenant_plan.active_till = timezone.now() + timezone.timedelta(
+                days=30 if plan_type.startswith('m_') else 365
+            )
+            tenant_plan.save()
+            messages.success(request, 'Plan purchased and activated successfully.')
         return redirect('Payments:plan_purchase_payment', plan_id=tenant_plan.id)
     tenant_plan = TenantPlan.objects.filter(tenant=tenant, active=True)
-    next_tenant_plan = TenantPlan.objects.filter(tenant=tenant, active=False,
-                                                 active_till__gt=tenant_plan.values('active_till')
-                                                 ).exists()
+    next_tenant_plan = TenantPlan.objects.filter(tenant=tenant, active=False, active_till__gt=timezone.now()).exists()
     context = {
         'plan_type': tenant_plan.first().name if tenant_plan.exists() else None,
         'next_plan': next_tenant_plan,
